@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: com.google.android.datatransport:transport-runtime:2.2.5@aar" type="AndroidModuleLibraryType">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/a194d1d98a123ce0f3f0d40e3633aa85/jetified-transport-runtime-2.2.5/AndroidManifest.xml" />
+      <root url="jar://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/a194d1d98a123ce0f3f0d40e3633aa85/jetified-transport-runtime-2.2.5/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

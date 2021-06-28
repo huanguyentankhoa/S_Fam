@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: androidx.savedstate:savedstate:1.1.0@aar" type="AndroidModuleLibraryType">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/334f0489566ee723e727d2ee811e40e7/jetified-savedstate-1.1.0/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/334f0489566ee723e727d2ee811e40e7/jetified-savedstate-1.1.0/AndroidManifest.xml" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

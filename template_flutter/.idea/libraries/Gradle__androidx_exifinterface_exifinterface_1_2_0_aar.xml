@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: androidx.exifinterface:exifinterface:1.2.0@aar" type="AndroidModuleLibraryType">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/6acbd7ea2c1b5dfffc2c536826dbba35/exifinterface-1.2.0/AndroidManifest.xml" />
+      <root url="jar://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/6acbd7ea2c1b5dfffc2c536826dbba35/exifinterface-1.2.0/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

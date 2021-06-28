@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="Gradle: androidx.biometric:biometric:1.1.0@aar" type="AndroidModuleLibraryType">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/eb543368457eb7bf50236d72f7d3d680/biometric-1.1.0/AndroidManifest.xml" />
+      <root url="jar://$PROJECT_DIR$/../../../../Program/flutter/bin/caches/transforms-2/files-2.1/eb543368457eb7bf50236d72f7d3d680/biometric-1.1.0/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
