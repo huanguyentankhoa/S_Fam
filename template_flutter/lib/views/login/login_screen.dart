@@ -1,241 +1,252 @@
+import 'dart:convert' as convert;
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_template/flutter_template.dart';
 import 'package:provider/provider.dart';
-import 'package:youreal/common/config/color_config.dart';
-import 'package:youreal/common/config/text_config.dart';
-import 'package:youreal/common/tools.dart';
-import 'package:youreal/view_models/app_model.dart';
-import 'package:youreal/views/login/login_with_phone_number.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:s_fam/common/constants/colors_config.dart';
+import 'package:s_fam/common/constants/general.dart';
+import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/view_models/user_provider.dart';
+import 'package:s_fam/views/login/forgot_password.dart';
+import 'package:s_fam/views/login/login_success.dart';
+import 'package:s_fam/views/signIn/signIn_screen.dart';
+import 'package:s_fam/widgets/app_bar.dart';
+import 'package:s_fam/widgets/text_input.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({Key? key}) : super(key: key);
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({Key? key}) : super(key: key);
-  final _key = GlobalKey<ScaffoldState>();
-  late AppModel appModel;
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
 
-  // _loginSuccess(BuildContext context) {
-  //   appModel.currentAction = PageAction(
-  //     state: PageState.addPage,
-  //     page: SetupGroupConfig,
-  //   );
-  // }
+class _LoginScreenState extends State<LoginScreen> {
+  final _formKey = GlobalKey<FormState>();
+  TextEditingController _password = TextEditingController();
+  TextEditingController _account = TextEditingController();
+  bool showPass = false;
+  ButtonStatus stateOnlyText = ButtonStatus.idle;
+  late UserProvider _user;
 
-  // void _loginFail(context) {
-  //   const snackBar = SnackBar(
-  //     content: Text("Đăng nhập không thành công"),
-  //     duration: Duration(seconds: 3),
-  //   );
-  //   ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  // }
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    loadAccountSaved();
+  }
+
+  loadAccountSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    var dataUser = convert.jsonDecode(prefs.getString("account")!);
+    if (dataUser != null) {
+      setState(() {
+        _account.text = dataUser["email"];
+        _password.text = dataUser["password"];
+      });
+    }
+  }
+
+  void onPressedCustomButton() async {
+    if (stateOnlyText == ButtonStatus.idle) {
+      setState(() {
+        stateOnlyText = ButtonStatus.loading;
+      });
+      Future.delayed(Duration(seconds: 2), () async {
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => LoginSuccess(),
+        //   ),
+        // );
+        if (_formKey.currentState!.validate()) {
+          _user.login(
+              email: _account.text,
+              password: _password.text,
+              success: () async {
+                setState(() {
+                  stateOnlyText = ButtonStatus.success;
+                });
+                setState(() {
+                  stateOnlyText = ButtonStatus.idle;
+                });
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LoginSuccess(),
+                  ),
+                );
+              },
+              fail: (error) {
+                setState(() {
+                  stateOnlyText = ButtonStatus.fail;
+                });
+                Future.delayed(Duration(seconds: 2), () {
+                  setState(() {
+                    stateOnlyText = ButtonStatus.idle;
+                  });
+                });
+                printLog("Đăng nhập không thành công");
+              });
+        } else {
+          setState(() {
+            stateOnlyText = ButtonStatus.fail;
+          });
+          Future.delayed(Duration(seconds: 2), () {
+            setState(() {
+              stateOnlyText = ButtonStatus.idle;
+            });
+          });
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    appModel = Provider.of<AppModel>(context);
+    _user = Provider.of<UserProvider>(context);
     return Scaffold(
-      key: _key,
+      backgroundColor: Colors.white,
+      appBar: AppBarGenerated(),
       body: SingleChildScrollView(
-        child: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              child: getImage(
-                "background_login.png",
-                fit: BoxFit.cover,
-              ),
-            ),
-            Align(
-              alignment: AlignmentDirectional.bottomCenter,
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 21.h),
-                child: Column(
-                  children: [
-                    GestureDetector(
+        child: Form(
+          key: _formKey,
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            padding: EdgeInsets.only(left: 20, right: 20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  margin: EdgeInsets.only(top: 15),
+                  child: Text(
+                    "Đăng nhập",
+                    style: kText20BlueBold,
+                  ),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                TextInput(
+                  height: 48,
+                  labelText: "Email/Username",
+                  validator: (value) {
+                    return value!.isEmpty ? "Không được bỏ trống" : null;
+                  },
+                  controller: _account,
+                ),
+                SizedBox(
+                  height: 27,
+                ),
+                TextInput(
+                  height: 48,
+                  labelText: "Mật khẩu",
+                  obscureText: !showPass,
+                  validator: (value) {
+                    return value!.isEmpty ? "Không được bỏ trống" : null;
+                  },
+                  controller: _password,
+                  suffixIcon: Container(
+                    width: 20,
+                    padding: EdgeInsets.only(top: 10),
+                    alignment: Alignment.center,
+                    child: InkWell(
                       onTap: () {
-                        //appModel.currentAction = PageAction(state: PageState.addPage, page: LoginPage1Config);
+                        setState(() {
+                          showPass = !showPass;
+                        });
+                      },
+                      child: Icon(
+                        showPass
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
+                        color: textSecondary,
+                        size: 21,
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 32,
+                ),
+                Container(
+                  height: 48,
+                  alignment: Alignment.center,
+                  child: ProgressButtonAnimation(
+                    onPressed: onPressedCustomButton,
+                    state: stateOnlyText,
+                    height: 52,
+                    maxWidth: MediaQuery.of(context).size.width,
+                    stateWidgets: {
+                      ButtonStatus.idle: Text(
+                        "ĐĂNG NHẬP",
+                        style: kText16WhiteBold,
+                      ),
+                      ButtonStatus.fail: Text(
+                        "Đăng nhập không thành công",
+                        style: kText14White,
+                      ),
+                      ButtonStatus.success: Text(
+                        "Đăng nhập thành công",
+                        style: kText14White,
+                      ),
+                    },
+                    stateColors: {
+                      ButtonStatus.idle: primaryMain,
+                      ButtonStatus.loading: primaryMain,
+                      ButtonStatus.fail: Colors.red,
+                      ButtonStatus.success: Colors.green,
+                    },
+                  ),
+                ),
+                SizedBox(
+                  height: 28,
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ForgotPassword(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: Text(
+                      "Quên mật khẩu?",
+                      style: kText16Blue,
+                    ),
+                  ),
+                ),
+                Expanded(
+                    child: Align(
+                  alignment: AlignmentDirectional.bottomCenter,
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: 24),
+                    child: InkWell(
+                      onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => LoginWithPhoneNumber(),
+                            builder: (context) => SignInScreen(),
                           ),
                         );
                       },
-                      child: Container(
-                        height: 50.h,
-                        width: MediaQuery.of(context).size.width,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            color: yrColor12,
-                            borderRadius: BorderRadius.circular(80.h)),
-                        child: Text(
-                          "ĐĂNG NHẬP VỚI SỐ ĐIỆN THOẠI",
-                          style: kText18_3,
-                        ),
+                      child: Text(
+                        "Chưa có tài khoản?",
+                        style: kText16BlueUnderLine,
                       ),
                     ),
-                    SizedBox(
-                      height: 70.h,
-                    ),
-                    Container(
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Divider(
-                              height: 1,
-                              color: yrColor3,
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 11.h),
-                            child: Text(
-                              "or",
-                              style: kText18_3,
-                            ),
-                          ),
-                          Expanded(
-                            child: Divider(
-                              height: 1,
-                              color: yrColor3,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.h,
-                    ),
-                    Container(
-                      height: 50.h,
-                      decoration: BoxDecoration(
-                          color: yrColor5,
-                          borderRadius: BorderRadius.circular(80.h)),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 50.h,
-                            width: 50.h,
-                            decoration: BoxDecoration(
-                              color: yrColor3,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(80.h),
-                                bottomLeft: Radius.circular(80.h),
-                              ),
-                            ),
-                            child: Container(
-                              height: 35.h,
-                              width: 35.h,
-                              alignment: Alignment.center,
-                              child: Image.asset(
-                                getIcon("google_logo.png"),
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Text(
-                                "GOOGLE",
-                                style: kText18_3,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.h,
-                    ),
-                    Container(
-                      height: 50.h,
-                      decoration: BoxDecoration(
-                          color: yrColor10,
-                          borderRadius: BorderRadius.circular(80.h)),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 50.h,
-                            width: 50.h,
-                            decoration: BoxDecoration(
-                              color: yrColor3,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(80.h),
-                                bottomLeft: Radius.circular(80.h),
-                              ),
-                            ),
-                            child: Container(
-                              height: 35.h,
-                              width: 35.h,
-                              alignment: Alignment.center,
-                              child: Image.asset(
-                                getIcon("fb_logo.png"),
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Text(
-                                "FACEBOOK",
-                                style: kText18_3,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.h,
-                    ),
-                    Container(
-                      height: 50.h,
-                      decoration: BoxDecoration(
-                          color: yrColor2,
-                          borderRadius: BorderRadius.circular(80.h)),
-                      child: Row(
-                        children: [
-                          Container(
-                            height: 50.h,
-                            width: 50.h,
-                            decoration: BoxDecoration(
-                              color: yrColor3,
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(80.h),
-                                bottomLeft: Radius.circular(80.h),
-                              ),
-                            ),
-                            child: Container(
-                              height: 35.h,
-                              width: 35.h,
-                              alignment: Alignment.center,
-                              child: Image.asset(
-                                getIcon("apple_logo.png"),
-                                fit: BoxFit.fill,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Text(
-                                "APPLE",
-                                style: kText18_3,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    SizedBox(
-                      height: 70.h,
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
+                  ),
+                ))
+              ],
+            ),
+          ),
         ),
       ),
     );

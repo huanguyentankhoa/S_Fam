@@ -75,7 +75,7 @@ class FirebaseNotification {
 
   static void showNotification(String? title, String? body) async {
     var androidChannel = AndroidNotificationDetails(
-        "com.honghm.youreal", "My Channel", "Description",
+        "com.honghm.s_fam", "My Channel", "Description",
         autoCancel: true,
         ongoing: true,
         importance: Importance.max,

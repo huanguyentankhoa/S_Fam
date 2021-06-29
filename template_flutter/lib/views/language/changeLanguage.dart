@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:youreal/generated/i10n.dart';
+import 'package:s_fam/generated/i10n.dart';
 
 import 'language.dart';
 class ChangeLanguage extends StatefulWidget {

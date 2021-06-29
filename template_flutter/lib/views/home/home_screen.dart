@@ -1,21 +1,18 @@
+import 'dart:async';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youreal/common/config/color_config.dart';
-import 'package:youreal/common/config/text_config.dart';
-import 'package:youreal/common/tools.dart';
-import 'package:youreal/model/deal.dart';
-import 'package:youreal/view_models/deal/deal_provider.dart';
-import 'package:youreal/view_models/notification/firebase_notification_handler.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:youreal/views/detail/detail_deal.dart';
-import 'package:youreal/views/home/card_deal_invested.dart';
-import 'package:youreal/views/home/card_deal_investing.dart';
-import 'package:youreal/views/home/card_deal_suggest.dart';
-import 'package:youreal/views/menu/menu.dart';
-
-import '../../routes/ui_pages.dart';
-import '../../view_models/app_model.dart';
-import 'card_deal_recently.dart';
+import 'package:s_fam/common/constants/colors_config.dart';
+import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/common/tools.dart';
+import 'package:s_fam/models/event.dart';
+import 'package:s_fam/models/member.dart';
+import 'package:s_fam/models/work.dart';
+import 'package:s_fam/view_models/user_provider.dart';
+import 'package:s_fam/views/home/item.dart';
+import 'package:s_fam/views/menu.dart';
+import 'package:s_fam/views/notification/notification_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -25,414 +22,326 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _key = GlobalKey<ScaffoldState>();
-  FirebaseNotification firebaseNotification = FirebaseNotification();
-  String _valueLocation = "Tp.Hồ Chí Minh";
-  List<String> listLocation = ["Tp.Hồ Chí Minh", "Value2", "Value3", "Value4"];
-  String _valueSort = "LeaderA";
-  List<String> listSort = ["LeaderA", "LeaderB", "LeaderC", "LeaderD"];
-  bool isSelectLocation = false;
+  GlobalKey<ScaffoldState> _key = GlobalKey();
 
-  TextEditingController _search = TextEditingController();
-  List<Widget> _dealRecentlyBuild = [];
-  List<Widget> _dealInvestingBuild = [];
-  List<Widget> _dealInvestedBuild = [];
-  List<Deal> _listDealRecently = [];
-  List<Deal> _listDealSuggest = [];
-  List<Deal> _listDealInvesting = [];
-  List<Deal> _listDealInvested = [];
+  late UserProvider user;
+  bool isLoading = true;
 
   @override
   void initState() {
-    // TODO: implement initState
-    super.initState();
 
-    setState(() {
-      _listDealRecently =
-          Provider.of<DealProvider>(context, listen: false).listDealRecently;
-      _listDealSuggest =
-          Provider.of<DealProvider>(context, listen: false).listDealSuggest;
-      _listDealInvesting =
-          Provider.of<DealProvider>(context, listen: false).listDealInvesting;
-      _listDealInvested =
-          Provider.of<DealProvider>(context, listen: false).listDealInvested;
+    Future.delayed(Duration(milliseconds: 500), () {
+     if(mounted)
+       setState(() {
+         isLoading = false;
+       });
     });
-
-    _loadCard();
-  }
-
-  _loadCard() {
-    _listDealRecently.forEach((item) {
-      _dealRecentlyBuild.add(
-        CardDealRecently(
-          nameCard: item.name,
-          address: item.address,
-          acreage: item.acreage,
-          numberFollower: item.numberFollower,
-          price: item.price,
-          isExpired: item.isExpired,
-          imageSample: item.imageSample,
-          images: item.images,
-        ),
-      );
-    });
-    _listDealInvesting.forEach((item) {
-      _dealInvestingBuild.add(CardDealInvesting(
-        nameCard: item.name,
-        address: item.address,
-        acreage: item.acreage,
-        price: item.price,
-        isInvestorsMain: item.isInvestorsMain,
-        imageSample: item.imageSample,
-        images: item.images,
-      ));
-    });
-    _listDealInvested.forEach((item) {
-      _dealInvestedBuild.add(CardDealInvested(deal: item));
-    });
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    user = Provider.of<UserProvider>(context);
     return Scaffold(
+      backgroundColor: Colors.white,
       key: _key,
-      backgroundColor: yrColor1,
-      drawer: Menu(),
       appBar: AppBar(
-        backgroundColor: yrColor1,
-        elevation: 0,
-        centerTitle: true,
-        leading: GestureDetector(
+        backgroundColor: Colors.white,
+        leading: InkWell(
           onTap: () {
             _key.currentState!.openDrawer();
           },
           child: Container(
             child: Icon(
               Icons.menu,
-              color: yrColor4,
-              size: 38.w,
+              color: Colors.black,
+              size: 30,
             ),
           ),
         ),
         title: Container(
+          height: 48,
           alignment: Alignment.center,
-          child: Text(
-            "Trang chủ",
-            style: kText18Bold_3,
-          ),
-        ),
-        actions: [
-          GestureDetector(
-            onTap: () {},
-            child: Container(
-              margin: EdgeInsets.only(right: 14.w),
-              child: Icon(
-                Icons.notifications_none,
-                color: yrColor4,
-                size: 25.w,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            _headerBuild(),
-            SizedBox(
-              height: 30.h,
-            ),
-            Container(
-              height: 200,
-              padding: EdgeInsets.only(left: 12.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Deal đề xuất",
-                    style: kText20Bold_4,
-                  ),
-                  SizedBox(
-                    height: 12.h,
-                  ),
-                  Container(
-                    height: 180.h,
-                    child: ListView.builder(
-                        itemCount: _listDealSuggest.length,
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          var item = _listDealSuggest[index];
-                          return CardDealSuggest(
-                            nameCard: item.name,
-                            address: item.address,
-                            acreage: item.acreage,
-                            numberFollower: item.numberFollower,
-                            price: item.price,
-                            imageSample: item.imageSample,
-                            onTap: () {
-                              // appModel.currentAction = PageAction(
-                              //     state: PageState.addWidget,
-                              //     widget: DetailDeal(
-                              //       deal: item,
-                              //     ),
-                              //     page: DetailPageConfig);
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => DetailDeal(deal: item),
-                                ),
-                              );
-                            },
-                          );
-                        }),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 20.h,
-            ),
-            Container(
-              padding: EdgeInsets.only(left: 12.w, right: 12.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Deal gần đây",
-                    style: kText20Bold_4,
-                  ),
-                  SizedBox(
-                    height: 8.h,
-                  ),
-                  ..._dealRecentlyBuild,
-                  SizedBox(
-                    height: 8.h,
-                  ),
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Xem thêm",
-                        style: kText18_3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 30.h,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
-              child: Column(
-                children: [
-                  Container(
-                    height: 33.h,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                        color: yrColor3,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(8.h),
-                          topRight: Radius.circular(8.h),
-                        )),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Deal đang đâu tư",
-                      style: kText16Bold_1,
-                    ),
-                  ),
-                  ..._dealInvestingBuild,
-                  SizedBox(
-                    height: 8.h,
-                  ),
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Xem thêm",
-                        style: kText18_3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 30.h,
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 12.w),
-              child: Column(
-                children: [
-                  Container(
-                    height: 33.h,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                        color: yrColor3,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(8.h),
-                          topRight: Radius.circular(8.h),
-                        )),
-                    alignment: Alignment.center,
-                    child: Text(
-                      "Deal đã đâu tư",
-                      style: kText16Bold_1,
-                    ),
-                  ),
-                  ..._dealInvestedBuild,
-                  SizedBox(
-                    height: 8.h,
-                  ),
-                  InkWell(
-                    onTap: () {},
-                    child: Container(
-                      alignment: Alignment.center,
-                      child: Text(
-                        "Xem thêm",
-                        style: kText18_3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 50.h,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _headerBuild() {
-    return Column(
-      children: [
-        Container(
-          width: MediaQuery.of(context).size.width,
-          padding: EdgeInsets.symmetric(horizontal: 12.w),
+          padding: EdgeInsets.only(left: 60),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: EdgeInsets.only(top: 5, left: 5),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.location_on_outlined,
-                      color: yrColor3,
-                      size: 15,
+                height: 48,
+                width: 24,
+                child: Image.asset(
+                  "assets/icons/logo.png",
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Text(
+                "-Fam",
+                style: kText20BlueBold,
+              )
+            ],
+          ),
+        ),
+        centerTitle: true,
+        elevation: 0,
+        actions: [
+          Container(
+            height: 50,
+            width: 50,
+            margin: EdgeInsets.only(right: 15),
+            child: Stack(
+              alignment: AlignmentDirectional.topEnd,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NotificationScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.only(right: 5, top: 5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black)),
+                    child: Icon(
+                      Icons.notifications_none,
+                      size: 20,
+                      color: Colors.black,
                     ),
+                  ),
+                ),
+                Container(
+                  height: 15,
+                  width: 15,
+                  alignment: Alignment.center,
+                  decoration:
+                      BoxDecoration(color: Colors.red, shape: BoxShape.circle),
+                  child: Text(
+                    "2",
+                    style: kText10White,
+                  ),
+                )
+              ],
+            ),
+          )
+        ],
+      ),
+      drawer: Menu(),
+      body: SingleChildScrollView(
+        child: Container(
+          padding: EdgeInsets.only(left: 20, right: 20, top: 40),
+          child: Column(
+            children: [
+              Container(
+                height: 165,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Container(
-                      height: 20,
-                      width: 120,
-                      margin: EdgeInsets.only(left: 16.w),
-                      child: DropdownButton<String>(
-                        value: _valueLocation,
-                        isExpanded: true,
-                        icon: Padding(
-                          padding: const EdgeInsets.only(bottom: 5),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: yrColor3,
-                          ),
-                        ),
-                        style: kText16Bold_3,
-                        dropdownColor: yrColor1,
-                        underline: Container(),
-                        onChanged: (value) {
-                          setState(() {
-                            _valueLocation = value!;
-                          });
-                        },
-                        items: listLocation
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(
-                              value,
-                              style: kText16Bold_3,
-                            ),
-                          );
-                        }).toList(),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Thành viên gia đình",
+                        style: kSubText18BlackBold,
                       ),
                     ),
+                    SizedBox(
+                      height: 17,
+                    ),
+                    if (user.groupOfUser != null)
+                      Container(
+                        height: 110,
+                        child: ListView.builder(
+                            itemCount: user.groupOfUser!.listMembers.length,
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              Member member =
+                                  user.groupOfUser!.listMembers[index];
+                              return Container(
+                                margin: EdgeInsets.only(right: 24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      width: 55,
+                                      height: 55,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: primaryMain),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: ClipOval(
+                                        child: member.avatarUrl != null &&
+                                                member.avatarUrl != ""
+                                            ? Tools().getImage(
+                                                "https://testfam.herokuapp.com/api/v1/image/${member.email}/avt/download")
+                                            : Image.asset(
+                                                "assets/icons/logo.png",
+                                                fit: BoxFit.contain,
+                                              ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 7,
+                                    ),
+                                    Text(
+                                      index == 0 ? "Tôi" : member.name!,
+                                      style: kSubText14Black,
+                                    )
+                                  ],
+                                ),
+                              );
+                            }),
+                      ),
                   ],
                 ),
               ),
               Container(
-                height: 20,
-                width: 80,
-                margin: EdgeInsets.only(left: 16.w),
-                child: DropdownButton<String>(
-                  value: _valueSort,
-                  isExpanded: true,
-                  icon: Image.asset(getIcon("sort-size.png")),
-                  style: kText16Bold_3,
-                  dropdownColor: yrColor1,
-                  underline: Container(),
-                  onChanged: (value) {
-                    setState(() {
-                      _valueSort = value!;
-                    });
-                  },
-                  items: listSort.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(
-                        value,
-                        style: kText16Bold_3,
+                height: 260,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Công việc",
+                          style: kSubText18BlackBold,
+                        ),
+                        if (user.listWork.length > 2)
+                          InkWell(
+                            onTap: () {},
+                            child: Text(
+                              "Xem thêm",
+                              style: kSubText12Black,
+                            ),
+                          )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    if (isLoading)
+                      Container(
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.white,
+                        ),
                       ),
-                    );
-                  }).toList(),
+                    if (!isLoading)
+                      user.listWork.length <= 0
+                          ? Container(
+                              child: Text(
+                                "Không có công việc nào!",
+                                style: kSubText16BlackBold,
+                              ),
+                            )
+                          : Container(
+                              height: 220,
+                              child: ListView.separated(
+                                  physics: NeverScrollableScrollPhysics(),
+                                  itemCount: user.listWork.length > 2
+                                      ? 2
+                                      : user.listWork.length,
+                                  separatorBuilder: (context, index) {
+                                    return Container(
+                                      child: Divider(
+                                        height: 1,
+                                        color: textSecondary,
+                                      ),
+                                    );
+                                  },
+                                  itemBuilder: (context, index) {
+                                    Work work = user.listWork[index];
+                                    return Container(
+                                      margin:
+                                          EdgeInsets.only(top: 8, bottom: 8),
+                                      child: Item(
+                                        name: work.name,
+                                        date: work.startDay,
+                                        time: work.startTime,
+                                        sub: work.detail,
+                                      ),
+                                    );
+                                  }),
+                            )
+                  ],
                 ),
               ),
+              Container(
+                height: 260,
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Sự kiện",
+                          style: kSubText18BlackBold,
+                        ),
+                        if (user.listEvent.length > 2)
+                          InkWell(
+                            onTap: () {},
+                            child: Text(
+                              "Xem thêm",
+                              style: kSubText12Black,
+                            ),
+                          )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    if (isLoading)
+                      Container(
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.white,
+                        ),
+                      ),
+                    if (!isLoading)
+                      user.listEvent.length <= 0
+                          ? Container(
+                              child: Text(
+                                "Không có sự kiện nào!",
+                                style: kSubText16BlackBold,
+                              ),
+                            )
+                          : Container(
+                              height: 220,
+                              child: ListView.separated(
+                                  itemCount: user.listEvent.length > 2
+                                      ? 2
+                                      : user.listEvent.length,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  separatorBuilder: (context, index) {
+                                    return Container(
+                                      child: Divider(
+                                        height: 1,
+                                        color: textSecondary,
+                                      ),
+                                    );
+                                  },
+                                  itemBuilder: (context, index) {
+                                    EventModel event = user.listEvent[index];
+                                    return Container(
+                                      margin:
+                                          EdgeInsets.only(top: 8, bottom: 8),
+                                      child: Item(
+                                        name: event.name,
+                                        date: event.date,
+                                        time: event.startTime,
+                                        sub: event.detail,
+                                      ),
+                                    );
+                                  }),
+                            )
+                  ],
+                ),
+              )
             ],
           ),
         ),
-        SizedBox(
-          height: 12.h,
-        ),
-        Container(
-          height: 45.h,
-          margin: EdgeInsets.symmetric(horizontal: 12.w),
-          padding: EdgeInsets.only(left: 12),
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-              color: yrColor3, borderRadius: BorderRadius.circular(10.h)),
-          child: TextFormField(
-            controller: _search,
-            style: kText16_1,
-            decoration: InputDecoration(
-                hintText: "Tìm kiếm",
-                hintStyle: kText16_1,
-                focusedBorder: InputBorder.none,
-                suffixIcon: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 10, top: 3, right: 3, bottom: 3),
-                  child: InkWell(
-                    onTap: () {},
-                    child: Container(
-                      height: 38.h,
-                      width: 38.h,
-                      decoration: BoxDecoration(
-                          color: yrColor1,
-                          borderRadius: BorderRadius.circular(10.h)),
-                      child: Icon(
-                        Icons.search,
-                        color: yrColor4,
-                        size: 20.h,
-                      ),
-                    ),
-                  ),
-                )),
-          ),
-        )
-      ],
+      ),
     );
   }
 }

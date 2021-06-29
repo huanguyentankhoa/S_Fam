@@ -1,6 +1,9 @@
 
 const serverConfig = {
   "type": "app",
-  "url": "dev-api.youreal.vn",
-  "urlToken":"dev-auth.youreal.vn",
+  "url": "https://testfam.herokuapp.com/",
+
+  "consumerKey": "",
+  "consumerSecret": "",
+  "forgetPassword": ""
 };

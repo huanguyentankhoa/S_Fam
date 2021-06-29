@@ -1,4 +1,4 @@
-package com.honghm.youreal
+package com.honghm.s_fam
 
 import io.flutter.plugin.common.PluginRegistry
 

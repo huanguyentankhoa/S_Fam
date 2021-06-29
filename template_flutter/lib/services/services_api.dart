@@ -1,18 +1,15 @@
-import 'dart:convert';
-
 import 'package:dio/dio.dart';
-import 'package:youreal/model/chat.dart';
-import 'package:youreal/model/deal.dart';
-import 'package:youreal/model/news.dart';
-import 'package:youreal/model/user.dart';
+// import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:s_fam/common/constants/general.dart';
+import 'package:s_fam/models/album.dart';
+import 'package:s_fam/models/event.dart';
+import 'package:s_fam/models/group.dart';
+import 'package:s_fam/models/member.dart';
+import 'package:s_fam/models/storage_account.dart';
+import 'package:s_fam/models/storage_item.dart';
+import 'package:s_fam/models/work.dart';
 
-const serverConfig = {
-  "type": "app",
-  // "url": "dev-api.youreal.vn",
-  // "urlToken": "dev-auth.youreal.vn",
-  "url": "http://171.244.39.37:8000/",
-  "urlToken": "http://171.244.39.37:8001/",
-};
+import 'config.dart';
 
 class APIServices {
   static final APIServices _instance = APIServices._internal();
@@ -20,184 +17,543 @@ class APIServices {
   APIServices._internal();
 
   late String url;
-  late String urlToken;
-  late String accessToken;
 
   factory APIServices() => _instance;
+  Dio dio = new Dio();
 
-  void setAppConfig() {
-    url = serverConfig["url"]!;
-    urlToken = serverConfig["urlToken"]!;
+  void setAppConfig(appConfig) {
+    ConfigServices().setConfig(appConfig);
+    url = appConfig["url"];
   }
 
-  Future<User?> loginWithPhoneNumber(phoneNumber, password) async {
-    User? _user;
-    Dio dio = new Dio();
+  ///Đăng nhập
+  Future<void> login(String email, String password,
+      {Function? success, Function(String)? fail}) async {
     try {
-      Map<String, dynamic> data = {
-        "grant_type": "password",
-        "scope": "api openid profile",
-        "username": phoneNumber,
-        "password": password
-      };
-      dio.options.contentType = Headers.formUrlEncodedContentType;
+      Map<String, dynamic> data = {"username": email, "password": password};
+      Response response = await dio.post("$url" + "login", data: data);
+      if (response.statusCode == 200) {
+        print(response.headers.map["authorization"]!.first);
+        success!(response.headers.map["authorization"]!.first);
+      } else
+        fail!("Có lỗi xảy ra");
+    } on DioError catch (e) {
+      print(e.toString());
+      rethrow;
+    }
+  }
+
+  Future<void> checkEmail(email,
+      {Function(String)? success, Function? fail}) async {
+    try {
+      Response result = await dio.get(
+        "$url" + "api/v1/registration/?email=$email",
+      );
+      if (result.data != null) {
+        if (result.statusCode == 200) {
+          success!(result.data);
+        }
+      } else {
+        fail!();
+      }
+    } catch (e) {
+      fail!();
+      printLog(e);
+    }
+  }
+
+  Future<bool> confirmEmail(token) async {
+    try {
+      Response result = await dio.get(
+        "$url" + "api/v1/registration/confirm?token=$token",
+      );
+      if (result.data != null) {
+        if (result.statusCode == 200) {
+          print(result.data);
+          if (result.data == "confirmed")
+            return true;
+          else
+            return false;
+        }
+      }
+    } catch (e) {
+      printLog(e);
+      return false;
+    }
+    return false;
+  }
+
+  ///Đăng ký
+  Future<bool> registration(userInfo) async {
+    try {
+      Map<String, dynamic> data = userInfo;
       dio.options.headers = {
-        "Content-Type": "application/x-www-form-urlencoded",
-        'Authorization': 'Basic WW91UmVhbDpue244TntUVkY1JChkYi5x'
+        "Content-Type": "application/json",
       };
       Response response =
-          await dio.post("$urlToken" + "connect/token", data: data);
-
+          await dio.post("$url" + "api/v1/registration", data: data);
+      print(response.data);
       if (response.statusCode == 200) {
-        accessToken = response.data["access_token"];
-        _user = await getUserInfo(token: accessToken);
-        return _user;
+        if (response.data == "register success")
+          return true;
+        else
+          return false;
       }
+      return false;
     } on DioError catch (e) {
-      print(e.message);
+      printLog(e);
+      rethrow;
     }
   }
 
-  Future<User?> getUserInfo({token}) async {
+  Future<bool> createGroup(
+      {required familyName, required email, required Function? success}) async {
     try {
-      User? user;
-      Dio dio = new Dio();
-      dio.options.headers = {'Authorization': 'Bearer $token'};
-      Response response = await dio.get("$url" + "account/info");
+      Map<String, dynamic> data = {"familyName": familyName, "userName": email};
+      Response response =
+          await dio.post("$url" + "api/v1/family/create", data: data);
       if (response.statusCode == 200) {
-        user = User.formJason(response.data, token);
-        return user;
+        if (response.data != "family name exits" &&
+            response.data != "user not exits") {
+          success!(response.data);
+          return true;
+        } else
+          return false;
+      }
+      return false;
+    } catch (e) {
+      printLog(e);
+    }
+    return false;
+  }
+
+  Future<void> joinGroup(
+      {required key,
+      required email,
+      Function? success,
+      Function(int)? fail}) async {
+    try {
+      Map<String, dynamic> data = {
+        "userName": email,
+        "key": key,
+      };
+      Response response =
+          await dio.post("$url" + "api/v1/family/join", data: data);
+      if (response.statusCode == 200) {
+        if (response.data == "join success") {
+          success!();
+        } else
+          fail!(response.statusCode!);
+      }else{
+        fail!(response.statusCode!);
       }
     } on DioError catch (e) {
+      printLog(e);
+      fail!(e.response!.statusCode!);
+    }
+  }
+
+  Future<void> getMemberByEmail(String email,
+      {Function(int)? fail, Function(Member)? success}) async {
+    Member? _member;
+    try {
+      Response response = await dio.get("$url" + "api/v1/user/$email");
+      if (response.statusCode == 200) {
+        _member = Member.fromJson(response.data);
+        success!(_member);
+      } else {
+        fail!(response.statusCode!);
+      }
+    } on DioError catch (e) {
+      print(e);
+      fail!(e.response!.statusCode!);
+    }
+  }
+
+  Future<Group?> getDataMyGroup(String email) async {
+    Group? _group;
+    try {
+      Response response = await dio.get("$url" + "api/v1/user/$email");
+      if (response.statusCode == 200) {
+        _group = Group.fromJason(response.data["family"]);
+      }
+      return _group;
+    } catch (e) {
       print(e);
     }
   }
 
-  Future<List<Deal>?> getListDealRecently() async {
-    List<Deal> _list = [];
-    listDeals.forEach((deal) {
-      if (deal["status"] == 1) {
-        _list.add(Deal.formJson(deal));
-      }
-    });
-    return _list;
-  }
-
-  Future<List<Map<String, dynamic>>> getCriteria() async {
-    List<Map<String, dynamic>> list = [];
-    Dio dio = new Dio();
+  Future<List<EventModel>?> getListEvent() async {
+    List<EventModel>? events = [];
     try {
-      Response response = await dio.get("$url" + "filter/criteria");
+      Response response = await dio.get("$url" + "api/v1/event/events");
+
       if (response.statusCode == 200) {
         response.data.forEach((item) {
-          list.add(item);
+          events.add(EventModel.formJson(item));
         });
       }
-      return list;
-    } on DioError catch (e) {
+      return events;
+    } catch (e) {
       print(e);
-      return list;
     }
   }
 
-  Future<bool> sendCriteria({
-    required position,
-    required soilType,
-    required investmentLimit,
-  }) async {
-    List<Map<String, dynamic>> data = [
-      {"criteriaId": 1, "value": position},
-      {"criteriaId": 2, "value": soilType},
-      {"criteriaId": 3, "value": investmentLimit}
-    ];
-    Dio dio = new Dio();
-    dio.options.headers = {'Authorization': 'Bearer $accessToken'};
+  Future<void> createEvent(
+      {required Map<String, dynamic> data,
+      Function? success,
+      Function? fail}) async {
     try {
-      Response response = await dio.post("$url" + "filter", data: data);
-
+      Response response =
+          await dio.post("$url" + "api/v1/event/create", data: data);
       if (response.statusCode == 200) {
-        return true;
-      }
-      return false;
-    } on DioError catch (e) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
       print(e);
-      return false;
+      fail!();
     }
   }
 
-  Future<List<Deal>?> getListDealSuggest() async {
-    List<Deal> _list = [];
-    listDeals.forEach((deal) {
-      if (deal["status"] == 2) {
-        _list.add(Deal.formJson(deal));
-      }
-    });
-    return _list;
+  Future<void> editEvent(
+      {required EventModel event, Function? success, Function? fail}) async {
+    try {
+      var data = event.toJson();
+      Response response =
+          await dio.put("$url" + "api/v1/event/edit/${event.id}", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
   }
 
-  Future<List<Deal>?> getListDealInvesting() async {
-    List<Deal> _list = [];
-    listDeals.forEach((deal) {
-      if (deal["status"] == 3) {
-        _list.add(Deal.formJson(deal));
-      }
-    });
-    return _list;
+  Future<void> deleteEvent({id, Function? success, Function? fail}) async {
+    try {
+      Response response = await dio.get("$url" + "api/v1/event/delete/$id");
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
   }
 
-  Future<List<Deal>?> getListDealInvested() async {
-    List<Deal> _list = [];
-    listDeals.forEach((deal) {
-      if (deal["status"] == 4) {
-        _list.add(Deal.formJson(deal));
+  Future<EventModel?> getEventById(id) async {
+    try {
+      EventModel? _event;
+
+      Response response = await dio.get("$url" + "api/v1/event/$id");
+      if (response.statusCode == 200 && response.data != null) {
+        _event = EventModel.formJson(response.data);
       }
-    });
-    return _list;
+      return _event;
+    } catch (e) {
+      print(e);
+    }
   }
 
-  Future<List<News>?> getListHotNews() async {
-    List<News> _list = [];
-    listNews.forEach((item) {
-      if (item["kind"] == 1) {
-        _list.add(News.formJson(item));
+  Future<List<Work>?> getListWork() async {
+    try {
+      List<Work>? works = [];
+      Response response = await dio.get("$url" + "api/v1/schedule");
+      if (response.statusCode == 200 && response.data != null) {
+        response.data.forEach((item) {
+          works.add(Work.formJson(item));
+        });
       }
-    });
-    return _list;
+      return works;
+    } catch (e) {}
   }
 
-  Future<List<News>?> getListOtherNews() async {
-    List<News> _list = [];
-    listNews.forEach((item) {
-      if (item["kind"] == 2) {
-        _list.add(News.formJson(item));
-      }
-    });
-    return _list;
+  Future<void> createWork(
+      {required email,
+      required Map<String, dynamic> data,
+      Function? success,
+      Function? fail}) async {
+    try {
+      Response response =
+          await dio.post("$url" + "api/v1/schedule/$email/create", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
   }
 
-  Future<List<GroupChat>?> getListGroupChat() async {
-    List<GroupChat> _list = [];
-    listGroupChat.forEach((item) {
-      _list.add(GroupChat.formJson(item));
-    });
-    return _list;
+  Future<void> editWork(
+      {required email,
+      required Work work,
+      Function? success,
+      Function? fail}) async {
+    try {
+      var data = work.toJson();
+      Response response = await dio
+          .put("$url" + "api/v1/schedule/$email/edit/${work.id}", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
+  }
+
+  Future<void> deleteWork({id, Function? success, Function? fail}) async {
+    try {
+      Response response = await dio.get("$url" + "api/v1/schedule/delete/$id");
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
+  }
+
+  Future<Work?> getWorkById(id) async {
+    try {
+      Work? _work;
+
+      Response response = await dio.get("$url" + "api/v1/schedule/$id");
+      if (response.statusCode == 200 && response.data != null) {
+        _work = Work.formJson(response.data);
+      }
+      return _work;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<List<Work>?> getWorkByEmail(email) async {
+    try {
+      List<Work> _works = [];
+
+      Response response =
+          await dio.get("$url" + "api/v1/schedule/get?email=$email");
+      if (response.statusCode == 200 && response.data != null) {
+        response.data.forEach((item) {
+          _works.add(Work.formJson(item));
+        });
+      }
+      return _works;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<List<StorageItem>?> getListStorageItem() async {
+    try {
+      List<StorageItem> _listItems = [];
+      Response response = await dio.get("$url" + "api/v1/item/items");
+      if (response.statusCode == 200 && response.data != null) {
+        response.data.forEach((item) {
+          _listItems.add(StorageItem.formJson(item));
+        });
+      }
+      return _listItems;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> createStorageItem(
+      {required email,
+      required Map<String, dynamic> data,
+      Function? success,
+      Function? fail}) async {
+    try {
+      Response response =
+          await dio.post("$url" + "api/v1/item/$email/create", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
+  }
+
+  Future<List<StorageAccount>?> getListStorageAccount() async {
+    try {
+      List<StorageAccount> _listAccounts = [];
+      Response response = await dio.get("$url" + "api/v1/note/notes");
+      if (response.statusCode == 200 && response.data != null) {
+        response.data.forEach((item) {
+          _listAccounts.add(StorageAccount.formJson(item));
+        });
+      }
+      return _listAccounts;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> createStorageAccount(
+      {required email,
+      required Map<String, dynamic> data,
+      Function? success,
+      Function? fail}) async {
+    try {
+      Response response =
+          await dio.post("$url" + "api/v1/note/$email/create", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
+  }
+
+  Future<List<Album>?> getListAlbum() async {
+    try {
+      List<Album> _listAlbums = [];
+      Response response = await dio.get("$url" + "api/v1/album/albums");
+      if (response.statusCode == 200 && response.data != null) {
+        response.data.forEach((item) {
+          _listAlbums.add(Album.formJson(item));
+        });
+      }
+      return _listAlbums;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<Album?> getAlbumById(String id) async {
+    try {
+      Album? album;
+      Response response = await dio.get("$url" + "api/v1/album/$id");
+      if (response.statusCode == 200 && response.data != null) {
+        album = Album.formJson(response.data);
+      }
+      return album;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> createAlbum(
+      {required email,
+      required String name,
+      Function? success,
+      Function? fail}) async {
+    try {
+      Response response =
+          await dio.post("$url" + "api/v1/album/$email/create?name=$name");
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
+  }
+
+  Future<void> uploadImageAlbum({
+    required String idAlbum,
+    required FormData data,
+    Function? success,
+    Function? fail,
+  }) async {
+    try {
+      Response response = await dio
+          .post("$url" + "api/v1/image/album/$idAlbum/upload", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
+  }
+
+  Future<StorageItem?> getItemById(String id) async {
+    try {
+      StorageItem? item;
+      Response response = await dio.get("$url" + "api/v1/item/$id");
+      if (response.statusCode == 200 && response.data != null) {
+        item = StorageItem.formJson(response.data);
+      }
+      return item;
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  Future<void> uploadImageItem({
+    required String idItem,
+    required FormData data,
+    Function? success,
+    Function? fail,
+  }) async {
+    try {
+      Response response = await dio
+          .post("$url" + "api/v1/image/item/$idItem/upload", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
+  }
+
+  Future<void> uploadAvtUser({
+    required String email,
+    required FormData data,
+    Function? success,
+    Function? fail,
+  }) async {
+    try {
+      Response response =
+          await dio.post("$url" + "api/v1/image/$email/avt/upload", data: data);
+      if (response.statusCode == 200) {
+        success!();
+      } else
+        fail!();
+    } catch (e) {
+      print(e);
+      fail!();
+    }
   }
 
   Future<void> sendNotification() async {
-    Dio dio = new Dio();
-    dio.options.headers = {
-      'Content-Type': 'application/json',
-      'Authorization':
-          'key=AAAAkNZ_-y8:APA91bF_-kRFCNbgNe7SeIxTzaz6ePRJzYa6R2l-gxivuaHg0x1Tb5Cod61eymeCAJuGLLFNP0RKzZwfFL1AmBK-4JrtDpn6TswllPX3nrIzxmmFi-INljqOESmiB6Dd-n0F9dp9gIK7'
-    };
-    await dio.post(
-      "https://fcm.googleapis.com/fcm/send",
-      data: {
-        "to":
-            "dIjxXbtVRG2AH5AW8MBi90:APA91bFQrBA5ldU04L-smbarYxYd4hE0-jRZM6rmp9pC-UZkcj9IZ4e3CwwdCMX9sQI8TjueKS_oR0QllNEoCyE1T3iqg_weqNC8gM7hmV-yuIME5xi4DQHzu7P-0HPvHJvbJb9w35SF",
-        "notification": {"title": "This is a test title", "body": "OK HELLO"},
-        "data": {"title": "This is a test title", "body": "OK HELLO"}
-      },
-    );
+   try{
+     print("run here");
+     dio.options.headers = {
+       'Content-Type': 'application/json',
+       'Authorization':
+       'key=AAAAkNZ_-y8:APA91bF_-kRFCNbgNe7SeIxTzaz6ePRJzYa6R2l-gxivuaHg0x1Tb5Cod61eymeCAJuGLLFNP0RKzZwfFL1AmBK-4JrtDpn6TswllPX3nrIzxmmFi-INljqOESmiB6Dd-n0F9dp9gIK7'
+     };
+     await dio.post(
+       "https://fcm.googleapis.com/fcm/send",
+       data: {
+         "to":
+         "dIjxXbtVRG2AH5AW8MBi90:APA91bFQrBA5ldU04L-smbarYxYd4hE0-jRZM6rmp9pC-UZkcj9IZ4e3CwwdCMX9sQI8TjueKS_oR0QllNEoCyE1T3iqg_weqNC8gM7hmV-yuIME5xi4DQHzu7P-0HPvHJvbJb9w35SF",
+         "notification": {"title": "This is a test title", "body": "OK HELLO"},
+         "data": {"title": "This is a test title", "body": "OK HELLO"}
+       },
+     );
+   }catch(e) {
+     print(e);
+   }
   }
 }

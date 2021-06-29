@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:youreal/common/tools.dart';
-import 'package:youreal/generated/i10n.dart';
-import 'package:youreal/view_models/app_model.dart';
+import 'package:s_fam/common/tools.dart';
+import 'package:s_fam/generated/i10n.dart';
+import 'package:s_fam/view_models/app_provider.dart';
 
 class Language extends StatefulWidget {
   @override
@@ -42,7 +42,7 @@ class _LanguageState extends State<Language> {
           child: ListTile(
             title: Text(languages[i]["name"]),
             onTap: () {
-              Provider.of<AppModel>(context, listen: false).changeLanguage(languages[i]["code"], context);
+              Provider.of<AppProvider>(context, listen: false).changeLanguage(languages[i]["code"], context);
               _showLoading(languages[i]["text"]);
             },
           ),

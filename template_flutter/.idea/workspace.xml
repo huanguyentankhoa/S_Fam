@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0249368d-801c-4e26-8c52-3f57f1c0d30a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/lib/model/user.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/user.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/routes/app_router_delegate.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/routes/app_router_delegate.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/services/services_api.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/services/services_api.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/view_models/app_model.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/view_models/app_model.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/login/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/login/login_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/login/login_with_phone_number.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/login/login_with_phone_number.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/setup_group/setup_group.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/setup_group/setup_group.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/views/splash_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/views/splash_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
-    </list>
+    <list default="true" id="0249368d-801c-4e26-8c52-3f57f1c0d30a" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -97,11 +86,11 @@
       <screen x="0" y="0" width="1536" height="824" />
     </state>
     <state x="499" y="159" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1536.824@0.0.1536.824" timestamp="1622688454921" />
-    <state x="3086" y="220" key="FileChooserDialogImpl" timestamp="1624542433067">
+    <state x="3086" y="220" key="FileChooserDialogImpl" timestamp="1624896009627">
       <screen x="2400" y="9" width="1920" height="1040" />
     </state>
     <state x="2606" y="218" key="FileChooserDialogImpl/0.0.1536.824/1920.7.1920.1040@1920.7.1920.1040" timestamp="1623898012747" />
-    <state x="3086" y="220" key="FileChooserDialogImpl/0.0.1536.824/2400.9.1920.1040@2400.9.1920.1040" timestamp="1624542433067" />
+    <state x="3086" y="220" key="FileChooserDialogImpl/0.0.1536.824/2400.9.1920.1040@2400.9.1920.1040" timestamp="1624896009627" />
     <state x="549" y="167" key="FileChooserDialogImpl/0.0.1536.824@0.0.1536.824" timestamp="1623416657297" />
     <state width="1877" height="335" key="GridCell.Tab.0.bottom" timestamp="1624893436234">
       <screen x="2400" y="9" width="1920" height="1040" />

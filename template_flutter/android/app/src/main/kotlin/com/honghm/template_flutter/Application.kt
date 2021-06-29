@@ -1,4 +1,4 @@
-package com.honghm.youreal
+package com.honghm.s_fam
 import android.os.Parcel
 import android.os.Parcelable
 import io.flutter.app.FlutterApplication

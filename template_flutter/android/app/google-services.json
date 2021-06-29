@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:622074002223:android:e8c1f65854e70760e27fda",
         "android_client_info": {
-          "package_name": "com.honghm.youreal"
+          "package_name": "com.honghm.s_fam"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "622074002223-9n7nd99aadgs1a09t4kn9rne394jo5ml.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.honghm.youreal",
+            "package_name": "com.honghm.s_fam",
             "certificate_hash": "805d893e5a47981043036e41a40d983bf3d68779"
           }
         },
