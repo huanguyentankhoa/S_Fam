@@ -7,7 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_template/flutter_template.dart';
 
 class AnimationBell extends StatefulWidget {
-  const AnimationBell({Key? key}) : super(key: key);
+  final Function(bool) onTap;
+  const AnimationBell({Key? key, required this.onTap}) : super(key: key);
 
   @override
   _AnimationBellState createState() => _AnimationBellState();
@@ -54,28 +55,19 @@ class _AnimationBellState extends State<AnimationBell>
     super.dispose();
 
   }
-
+  bool isOn = false;
   @override
   Widget build(BuildContext context) {
-    bool isOn = false;
-    int alarmId = 1;
     return Stack(
       children: [
         InkWell(
           onTap: (){
-            AndroidAlarmManager.oneShot(
-                Duration(seconds: 5), alarmId, fireAlarm);
-            // setState(() {
-            //   isOn = !isOn;
-            // });
-            // if (isOn) {
-            //   print("alo");
-            //   AndroidAlarmManager.periodic(
-            //       Duration(seconds: 60), alarmId, fireAlarm);
-            // } else {
-            //   AndroidAlarmManager.cancel(alarmId);
-            //   print('Alarm Timer Canceled');
-            // }
+
+            setState(() {
+              isOn = !isOn;
+            });
+            widget.onTap(isOn);
+
           },
           child: Container(
             height: 48,
@@ -84,7 +76,20 @@ class _AnimationBellState extends State<AnimationBell>
                 color: Colors.red,
                 shape: BoxShape.circle
             ),
-            child: Transform.rotate(
+            child: isOn?Container(
+              height: 30,
+              width: 30,
+              decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle
+              ),
+              alignment: Alignment.center,
+              child: Container(
+                height: 15,
+                width: 15,
+                color: Colors.white,
+              ),
+            ):Transform.rotate(
               angle: animation.value/4,
               child: Container(
                 height: 30,
@@ -102,7 +107,5 @@ class _AnimationBellState extends State<AnimationBell>
       ],
     );
   }
-  void fireAlarm() {
-    print('Alarm Fired at ${DateTime.now()}');
-  }
+
 }

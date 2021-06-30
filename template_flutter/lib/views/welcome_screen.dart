@@ -54,10 +54,10 @@ class WelcomeScreen extends StatelessWidget {
             ),
             InkWell(
               onTap: () {
-                // app.currentAction =
-                //     PageAction(state: PageState.addPage, page: LoginPageConfig);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginScreen()));
-                //Navigator.push(context, MaterialPageRoute(builder: (context)=>MultiAssetsPage()));
+
+                Navigator.push(context, MaterialPageRoute(
+                    settings: RouteSettings(name: '/login'),
+                    builder: (context)=>LoginScreen()));
               },
               child: Container(
                 height: 52,
@@ -78,9 +78,10 @@ class WelcomeScreen extends StatelessWidget {
             ),
             InkWell(
               onTap: () {
-                // app.currentAction =
-                //     PageAction(state: PageState.addPage, page: SignInPageConfig);
-                Navigator.push(context, MaterialPageRoute(builder: (context)=>SignInScreen()));
+
+                Navigator.push(context, MaterialPageRoute(
+                    settings: RouteSettings(name: '/signIn'),
+                    builder: (context)=>SignInScreen()));
               },
               child: Container(
                 height: 52,

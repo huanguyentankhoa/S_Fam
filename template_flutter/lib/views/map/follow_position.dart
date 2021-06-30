@@ -2,13 +2,20 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/widgets/animation_bell.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../menu.dart';
+
+FlutterLocalNotificationsPlugin notificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class FollowPosition extends StatefulWidget {
   const FollowPosition({Key? key}) : super(key: key);
@@ -17,9 +24,9 @@ class FollowPosition extends StatefulWidget {
   _FollowPositionState createState() => _FollowPositionState();
 }
 
-class _FollowPositionState extends State<FollowPosition> {
+class _FollowPositionState extends State<FollowPosition>
+    with AutomaticKeepAliveClientMixin {
   var _position = LatLng(10.8468936, 106.6408852);
-  bool enablePosition = false;
   Completer<GoogleMapController> _controller = Completer();
   GlobalKey<ScaffoldState> _key = GlobalKey();
   late Timer _timer;
@@ -27,6 +34,7 @@ class _FollowPositionState extends State<FollowPosition> {
     target: LatLng(10.8468936, 106.6408852),
     zoom: 14.4746,
   );
+  bool _enablePosition = false;
 
   _getCurrentPosition() async {
     var position = await Geolocator.getCurrentPosition(
@@ -42,17 +50,60 @@ class _FollowPositionState extends State<FollowPosition> {
     });
   }
 
+  loadInit() async {
+    final prefs = await SharedPreferences.getInstance();
+    var result = prefs.getBool("EnablePosition");
+    if (result != null) {
+      setState(() {
+        _enablePosition = result;
+      });
+    } else {
+      setState(() {
+        _enablePosition = false;
+      });
+    }
+  }
+
+  showLocalNotification() async {
+    var androidDetails = AndroidNotificationDetails(
+      "channelId",
+      "channelName",
+      "channelDescription",
+      importance: Importance.high,
+    );
+    var iosDetails = IOSNotificationDetails();
+    var generalNotificationDetail =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+    await notificationsPlugin.show(
+        0, "Yêu cầu trợ giúp", "Bạn đang phát tín hiệu trợ giúp", generalNotificationDetail);
+
+  }
+
+  void initializeSettingLocalNotification() async {
+    var initializeAndroid = AndroidInitializationSettings('appicon');
+    var initializeIOS = IOSInitializationSettings();
+    var initializeSetting =
+        InitializationSettings(android: initializeAndroid, iOS: initializeIOS);
+    await notificationsPlugin.initialize(initializeSetting);
+    notificationsPlugin.initialize(initializeSetting);
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+    loadInit();
+    initializeSettingLocalNotification();
     _timer = Timer.periodic(Duration(seconds: 3), (timer) {
-      if (enablePosition) {
+      if (mounted) if (_enablePosition) {
         _getCurrentPosition();
-      } else {
-        //_timer.cancel();
       }
     });
+  }
+
+  saveEnablePosition(value) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool("EnablePosition", value);
   }
 
   @override
@@ -63,18 +114,29 @@ class _FollowPositionState extends State<FollowPosition> {
 
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context);
+
     return Scaffold(
       key: _key,
       appBar: AppBar(
         backgroundColor: Colors.white,
         leading: InkWell(
-          onTap: (){
+          onTap: () {
             _key.currentState!.openDrawer();
           },
           child: Container(
-            child: Icon(Icons.menu,color: Colors.black,size: 30,),
+            child: Icon(
+              Icons.menu,
+              color: Colors.black,
+              size: 30,
+            ),
           ),
         ),
+        title: Text(
+          "Vị trí",
+          style: kText24BlackBold,
+        ),
+        centerTitle: true,
         elevation: 0,
       ),
       drawer: Menu(),
@@ -108,28 +170,34 @@ class _FollowPositionState extends State<FollowPosition> {
                   InkWell(
                     onTap: () {
                       setState(() {
-                        enablePosition = !enablePosition;
+                        _enablePosition = !_enablePosition;
                       });
-                      if (enablePosition) _getCurrentPosition();
+                      saveEnablePosition(_enablePosition);
+                      if (_enablePosition) _getCurrentPosition();
                     },
                     child: Container(
                       height: 48,
                       width: MediaQuery.of(context).size.width - 100,
                       margin: EdgeInsets.only(right: 10, left: 10),
                       decoration: BoxDecoration(
-                        color: enablePosition ? Colors.red : primaryMain,
+                        color: _enablePosition ? Colors.red : primaryMain,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       alignment: Alignment.center,
                       child: Text(
-                        enablePosition ? "TẮT VỊ TRÍ" : "BẬT VỊ TRÍ",
+                        _enablePosition ? "TẮT VỊ TRÍ" : "BẬT VỊ TRÍ",
                         style: kText16WhiteBold,
                       ),
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.only(bottom: 20, right: 10, left: 10),
-                    child: AnimationBell(),
+                    margin: EdgeInsets.only(right: 10, left: 10),
+                    child: AnimationBell(
+                      onTap: (result) {
+                        if (result) showLocalNotification();
+                        else notificationsPlugin.cancelAll();
+                      },
+                    ),
                   )
                 ],
               ),
@@ -139,4 +207,8 @@ class _FollowPositionState extends State<FollowPosition> {
       ),
     );
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

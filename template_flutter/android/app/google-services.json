@@ -1,20 +1,57 @@
 {
   "project_info": {
-    "project_number": "622074002223",
-    "project_id": "template-flutter-71a13",
-    "storage_bucket": "template-flutter-71a13.appspot.com"
+    "project_number": "542785238289",
+    "project_id": "fir-fam",
+    "storage_bucket": "fir-fam.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:622074002223:android:e8c1f65854e70760e27fda",
+        "mobilesdk_app_id": "1:542785238289:android:41bc9737621bff7fb0c8b0",
+        "android_client_info": {
+          "package_name": "com.fhd.springbootpushnotification"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "542785238289-g7elb1p5804k0dgreirl1gb6gbu752sg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fhd.springbootpushnotification",
+            "certificate_hash": "805d893e5a47981043036e41a40d983bf3d68779"
+          }
+        },
+        {
+          "client_id": "542785238289-qe8kb0du4fmaqi40q5hi7cjrd1l2hpom.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCo8vxKwG9GER8RmELKdsOCeC2LSGDPVrw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "542785238289-qe8kb0du4fmaqi40q5hi7cjrd1l2hpom.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:542785238289:android:44867827512a937db0c8b0",
         "android_client_info": {
           "package_name": "com.honghm.s_fam"
         }
       },
       "oauth_client": [
         {
-          "client_id": "622074002223-9n7nd99aadgs1a09t4kn9rne394jo5ml.apps.googleusercontent.com",
+          "client_id": "542785238289-52g7aq0o7vftdfhdma3v7unj578pdo16.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.honghm.s_fam",
@@ -22,20 +59,20 @@
           }
         },
         {
-          "client_id": "622074002223-v5ojupqqndv4u464dsje9ouuiu8ql7ri.apps.googleusercontent.com",
+          "client_id": "542785238289-qe8kb0du4fmaqi40q5hi7cjrd1l2hpom.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDsr2uLsIoggoPciszISbHW70F9HZd0YsY"
+          "current_key": "AIzaSyCo8vxKwG9GER8RmELKdsOCeC2LSGDPVrw"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "622074002223-v5ojupqqndv4u464dsje9ouuiu8ql7ri.apps.googleusercontent.com",
+              "client_id": "542785238289-qe8kb0du4fmaqi40q5hi7cjrd1l2hpom.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

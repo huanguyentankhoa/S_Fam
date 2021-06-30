@@ -67,7 +67,6 @@ class AppProvider extends ChangeNotifier{
       await prefs.setBool("darkTheme", theme);
       notifyListeners();
     } catch (error) {
-      printLog('[_getFacebookLink] error: ${error.toString()}');
     }
   }
 
@@ -134,7 +133,7 @@ class AppProvider extends ChangeNotifier{
         selectedAssets: resultList,
       );
     } on Exception catch (e) {
-      print(e);
+       //printLog(e);
     }
     success!(resultList);
     notifyListeners();

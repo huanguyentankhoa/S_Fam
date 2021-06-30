@@ -55,6 +55,7 @@ class _SplashScreenState extends State<SplashScreen>
             context: _context,
             builder: (context) => JoinGroup(
               onBack: (){
+                user.loggedIn = false;
                 Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => WelcomeScreen()));
               },

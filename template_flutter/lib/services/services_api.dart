@@ -33,7 +33,6 @@ class APIServices {
       Map<String, dynamic> data = {"username": email, "password": password};
       Response response = await dio.post("$url" + "login", data: data);
       if (response.statusCode == 200) {
-        print(response.headers.map["authorization"]!.first);
         success!(response.headers.map["authorization"]!.first);
       } else
         fail!("Có lỗi xảy ra");
@@ -58,7 +57,7 @@ class APIServices {
       }
     } catch (e) {
       fail!();
-      printLog(e);
+      print(e);
     }
   }
 
@@ -69,7 +68,6 @@ class APIServices {
       );
       if (result.data != null) {
         if (result.statusCode == 200) {
-          print(result.data);
           if (result.data == "confirmed")
             return true;
           else
@@ -77,7 +75,7 @@ class APIServices {
         }
       }
     } catch (e) {
-      printLog(e);
+      print(e);
       return false;
     }
     return false;
@@ -92,7 +90,7 @@ class APIServices {
       };
       Response response =
           await dio.post("$url" + "api/v1/registration", data: data);
-      print(response.data);
+
       if (response.statusCode == 200) {
         if (response.data == "register success")
           return true;
@@ -101,7 +99,7 @@ class APIServices {
       }
       return false;
     } on DioError catch (e) {
-      printLog(e);
+     print(e);
       rethrow;
     }
   }
@@ -122,7 +120,7 @@ class APIServices {
       }
       return false;
     } catch (e) {
-      printLog(e);
+     print(e);
     }
     return false;
   }
@@ -148,7 +146,7 @@ class APIServices {
         fail!(response.statusCode!);
       }
     } on DioError catch (e) {
-      printLog(e);
+     print(e);
       fail!(e.response!.statusCode!);
     }
   }
@@ -165,7 +163,7 @@ class APIServices {
         fail!(response.statusCode!);
       }
     } on DioError catch (e) {
-      print(e);
+     print(e);
       fail!(e.response!.statusCode!);
     }
   }
@@ -179,7 +177,7 @@ class APIServices {
       }
       return _group;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -195,7 +193,7 @@ class APIServices {
       }
       return events;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -211,7 +209,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -227,7 +225,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -240,7 +238,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -255,7 +253,7 @@ class APIServices {
       }
       return _event;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -269,7 +267,9 @@ class APIServices {
         });
       }
       return works;
-    } catch (e) {}
+    } catch (e) {
+     print(e);
+    }
   }
 
   Future<void> createWork(
@@ -285,7 +285,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -304,7 +304,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -317,7 +317,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -332,7 +332,7 @@ class APIServices {
       }
       return _work;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -349,7 +349,7 @@ class APIServices {
       }
       return _works;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -364,7 +364,7 @@ class APIServices {
       }
       return _listItems;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -381,7 +381,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -397,7 +397,7 @@ class APIServices {
       }
       return _listAccounts;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -414,7 +414,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -430,7 +430,7 @@ class APIServices {
       }
       return _listAlbums;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -443,7 +443,7 @@ class APIServices {
       }
       return album;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -460,7 +460,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -479,7 +479,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
@@ -493,7 +493,7 @@ class APIServices {
       }
       return item;
     } catch (e) {
-      print(e);
+     print(e);
     }
   }
 
@@ -512,7 +512,7 @@ class APIServices {
         fail!();
     } catch (e) {
       print(e);
-      fail!();
+     print(e);
     }
   }
 
@@ -530,14 +530,22 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-      print(e);
+     print(e);
       fail!();
     }
   }
 
+  Future<void> sendFirebaseToken({required email,required token})async{
+    try{
+      Response response =
+      await dio.put("$url" + "api/v1/user/$email/edittoken/?fbtoken=$token");
+     print(response.data);
+    }on DioError catch(e){
+     print(e);
+    }
+  }
   Future<void> sendNotification() async {
    try{
-     print("run here");
      dio.options.headers = {
        'Content-Type': 'application/json',
        'Authorization':

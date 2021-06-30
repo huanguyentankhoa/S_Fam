@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:s_fam/common/constants/general.dart';
 
 class NotificationHandler {
   static final flutterLocalNotificationPlugin =
@@ -9,7 +10,7 @@ class NotificationHandler {
 
   static void initNotification(BuildContext context) {
     myContext = context;
-    var initAndroid = AndroidInitializationSettings("@mipmap/ic_launcher");
+    var initAndroid = AndroidInitializationSettings("@mipmap/appicon");
     var initIOS = IOSInitializationSettings(
         onDidReceiveLocalNotification: onDidReceiveLocalNotification);
     var initSetting =

@@ -14,14 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' as convert;
 
 class UserProvider with ChangeNotifier {
-  late Member _userCurrentLogin;
+  late Member userCurrentLogin;
 
-  Member get userCurrentLogin => _userCurrentLogin;
-
-  set userCurrentLogin(Member value) {
-    _userCurrentLogin = value;
-    notifyListeners();
-  }
 
   String token = "";
   String codeFamily = "";
@@ -32,6 +26,7 @@ class UserProvider with ChangeNotifier {
   List<StorageAccount> listStorageAccount = [];
   List<StorageItem> listStorageItem = [];
   List<Album> listAlbum = [];
+
 
   UserProvider() {
     getLoggedInState();
@@ -50,7 +45,7 @@ class UserProvider with ChangeNotifier {
       Function? success,
       Function(String)? fail}) async {
     try {
-      print("[LOGIN] Login start");
+       printLog("[LOGIN] Login start");
       notifyListeners();
       await _services.login(
         email.toString(),
@@ -69,7 +64,7 @@ class UserProvider with ChangeNotifier {
           fail!(e);
         },
       );
-      print("[LOGIN] Login end");
+       printLog("[LOGIN] Login end");
       return;
     } catch (e) {
       loggedIn = false;
@@ -81,9 +76,9 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getUserInfo(_email) async {
     try {
-      printLog("Get info user");
+       printLog("Get info user");
       await _services.getMemberByEmail(_email, success: (_member) {
-        _userCurrentLogin = _member;
+        userCurrentLogin = _member;
         notifyListeners();
       }, fail: (statusCode) {
         loggedIn = false;
@@ -98,7 +93,7 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> getDataMyGroup() async {
-    groupOfUser = (await _services.getDataMyGroup(_userCurrentLogin.email!))!;
+    groupOfUser = (await _services.getDataMyGroup(userCurrentLogin.email!))!;
     notifyListeners();
   }
 
@@ -109,7 +104,7 @@ class UserProvider with ChangeNotifier {
         success!(code);
       }, fail: fail);
     } catch (e) {
-      printLog(e);
+     print(e);
     }
   }
 
@@ -117,7 +112,7 @@ class UserProvider with ChangeNotifier {
     try {
       return await _services.confirmEmail(token);
     } catch (e) {
-      printLog(e);
+     print(e);
     }
     return false;
   }
@@ -125,18 +120,18 @@ class UserProvider with ChangeNotifier {
   Future<void> registration(
       {infoUser, saveLogin, Function? success, Function? fail}) async {
     try {
-      print("[REGISTER] Login start");
+       printLog("[REGISTER] register start");
       loading = true;
       notifyListeners();
       bool result = (await _services.registration(infoUser));
       if (result == true) {
-        print("[REGISTER] register end");
+         printLog("[REGISTER] register end");
         loggedIn = true;
       }
       notifyListeners();
       success!();
       loading = false;
-      notifyListeners();
+      notifyListeners(); 
     } catch (e) {
       loading = false;
       print('[ERROR] $e');
@@ -193,15 +188,17 @@ class UserProvider with ChangeNotifier {
   }
 
   Future<void> createFamily(
-      {required familyName, required Function? success}) async {
-    await _services.createGroup(
+      {required familyName, required Function? success, Function? fail}) async {
+    var result = await _services.createGroup(
         familyName: familyName,
-        email: _userCurrentLogin.email!,
+        email: userCurrentLogin.email!,
         success: (_code) {
           codeFamily = _code;
           notifyListeners();
           success!(codeFamily);
         });
+    if(!result)
+      fail!();
   }
 
   Future<void> joinFamily(
@@ -209,7 +206,7 @@ class UserProvider with ChangeNotifier {
     try {
       await _services.joinGroup(
           key: key,
-          email: _userCurrentLogin.email!,
+          email: userCurrentLogin.email!,
           success: () {
             codeFamily = key;
             joinedGroup = true;
@@ -421,7 +418,7 @@ class UserProvider with ChangeNotifier {
   Future<void> uploadAvtUser(
       {required FormData data, Function? success, Function? fail}) async {
     await _services.uploadAvtUser(
-      email: _userCurrentLogin.email!,
+      email: userCurrentLogin.email!,
       data: data,
       success: success,
       fail: fail,
@@ -436,7 +433,8 @@ class UserProvider with ChangeNotifier {
      print(e);
    }
   }
-  // void _handleSendNotification() async {
+
+// void _handleSendNotification() async {
   //   var deviceState = await OneSignal.shared.getDeviceState();
   //
   //   if (deviceState == null || deviceState.userId == null)

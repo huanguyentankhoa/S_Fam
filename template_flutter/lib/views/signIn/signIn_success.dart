@@ -20,7 +20,10 @@ class SignInSuccess extends StatelessWidget {
             ),
             Container(
               height: 287,
-              child: Image.asset("assets/images/signin_success.png",fit: BoxFit.fill,),
+              child: Image.asset(
+                "assets/images/signin_success.png",
+                fit: BoxFit.fill,
+              ),
             ),
             SizedBox(
               height: 20,
@@ -46,19 +49,16 @@ class SignInSuccess extends StatelessWidget {
                 alignment: AlignmentDirectional.bottomCenter,
                 child: InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => LoginScreen(),
-                      ),
-                    );
-
-                    // Navigator.pushAndRemoveUntil(context,
-                    //     MaterialPageRoute(builder: (_) => LoginScreen()), (route) => false);
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => LoginScreen(),
+                        ),
+                        (route) => false);
                   },
                   child: Container(
                     height: 52,
-                    margin: EdgeInsets.only(left: 20, right: 20,bottom: 20),
+                    margin: EdgeInsets.only(left: 20, right: 20, bottom: 20),
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: primaryMain,

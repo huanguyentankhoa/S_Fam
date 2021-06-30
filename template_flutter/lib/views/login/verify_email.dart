@@ -98,7 +98,6 @@ class _VerifyEmailState extends State<VerifyEmail> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    print(widget.code);
     errorController = StreamController<ErrorAnimationType>();
     setState(() {
       isDone = false;

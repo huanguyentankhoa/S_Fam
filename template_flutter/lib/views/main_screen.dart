@@ -8,13 +8,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
-import 'package:s_fam/models/member.dart';
 import 'package:s_fam/view_models/app_provider.dart';
+import 'package:s_fam/view_models/notification/firebase_notification_handler.dart';
 import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/views/home/calendar/calendar_screen.dart';
 import 'package:s_fam/views/home/home_screen.dart';
 import 'package:s_fam/views/home/storage/storage_screen.dart';
 import 'package:s_fam/views/map/follow_position.dart';
+import 'package:s_fam/views/welcome_screen.dart';
+
+import 'welcome_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -26,6 +29,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen>
     with AutomaticKeepAliveClientMixin {
   late Timer _timer;
+  FirebaseNotification firebaseNotification = FirebaseNotification();
   List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     CalendarScreen(),
@@ -44,7 +48,13 @@ class _MainScreenState extends State<MainScreen>
   void initState() {
     // TODO: implement initState
     super.initState();
-
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+      firebaseNotification.setupFirebase(
+          context,
+          Provider.of<UserProvider>(context, listen: false)
+              .userCurrentLogin
+              .email!);
+    });
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (Provider.of<UserProvider>(context, listen: false).loggedIn) {
         Provider.of<UserProvider>(context, listen: false).getDataMyGroup();
@@ -89,7 +99,11 @@ class _MainScreenState extends State<MainScreen>
                         children: [
                           InkWell(
                             onTap: () {
-                              Navigator.pop(context, true);
+                              Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => WelcomeScreen()),
+                                  (route) => false);
                             },
                             child: Text(
                               "THOÁT",

@@ -1,6 +1,4 @@
 
-import 'package:after_layout/after_layout.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -16,7 +14,6 @@ import 'common/constants/styles.dart';
 import 'generated/i10n.dart';
 import 'services/services_api.dart';
 import 'view_models/app_provider.dart';
-//import 'package:onesignal_flutter/onesignal_flutter.dart';
 
 class App extends StatefulWidget {
   const App({Key? key}) : super(key: key);
@@ -25,15 +22,8 @@ class App extends StatefulWidget {
   _AppState createState() => _AppState();
 }
 
-class _AppState extends State<App> with AfterLayoutMixin{
-  //final _app = AppModel();
+class _AppState extends State<App> {
 
-  String _debugLabelString = "";
-  bool _enableConsentButton = false;
-
-  // CHANGE THIS parameter to true if you want to test GDPR privacy consent
-  bool _requireConsent = true;
-  FirebaseNotification firebaseNotification = FirebaseNotification();
   final _app = AppProvider();
 
   /// Build the App Theme
@@ -53,9 +43,8 @@ class _AppState extends State<App> with AfterLayoutMixin{
 
       /// Load App model config
       APIServices().setAppConfig(serverConfig);
-    } catch (e, trace) {
-      printLog(e.toString());
-      printLog(trace.toString());
+    } catch (e) {
+     print(e.toString());
     }
   }
 
@@ -64,90 +53,8 @@ class _AppState extends State<App> with AfterLayoutMixin{
   void initState() {
     // TODO: implement initState
     super.initState();
-     //initPlatformState();
     loadInitData();
-    FirebaseMessaging.instance.getInitialMessage();
-    FirebaseMessaging.onMessage.listen((message) {
-      if(message.notification!=null){
-        print(message.notification!.title);
-      }
-    });
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
-      firebaseNotification.setupFirebase(context);
-    });
   }
-
-  // Future<void> initPlatformState() async {
-  //   if (!mounted) return;
-  //
-  //   OneSignal.shared.setLogLevel(OSLogLevel.verbose, OSLogLevel.none);
-  //
-  //   OneSignal.shared.setRequiresUserPrivacyConsent(_requireConsent);
-  //
-  //   OneSignal.shared
-  //       .setNotificationOpenedHandler((OSNotificationOpenedResult result) {
-  //     print('NOTIFICATION OPENED HANDLER CALLED WITH: ${result}');
-  //     this.setState(() {
-  //       _debugLabelString =
-  //       "Opened notification: \n${result.notification.jsonRepresentation().replaceAll("\\n", "\n")}";
-  //     });
-  //   });
-  //
-  //   OneSignal.shared
-  //       .setNotificationWillShowInForegroundHandler((OSNotificationReceivedEvent event) {
-  //     print('FOREGROUND HANDLER CALLED WITH: ${event}');
-  //     /// Display Notification, send null to not display
-  //     event.complete(null);
-  //
-  //     this.setState(() {
-  //       _debugLabelString =
-  //       "Notification received in foreground notification: \n${event.notification.jsonRepresentation().replaceAll("\\n", "\n")}";
-  //     });
-  //   });
-  //
-  //   OneSignal.shared
-  //       .setInAppMessageClickedHandler((OSInAppMessageAction action) {
-  //     this.setState(() {
-  //       _debugLabelString =
-  //       "In App Message Clicked: \n${action.jsonRepresentation().replaceAll("\\n", "\n")}";
-  //     });
-  //   });
-  //
-  //   OneSignal.shared
-  //       .setSubscriptionObserver((OSSubscriptionStateChanges changes) {
-  //     print("SUBSCRIPTION STATE CHANGED: ${changes.jsonRepresentation()}");
-  //   });
-  //
-  //   OneSignal.shared.setPermissionObserver((OSPermissionStateChanges changes) {
-  //     print("PERMISSION STATE CHANGED: ${changes.jsonRepresentation()}");
-  //   });
-  //
-  //   OneSignal.shared.setEmailSubscriptionObserver(
-  //           (OSEmailSubscriptionStateChanges changes) {
-  //         print("EMAIL SUBSCRIPTION STATE CHANGED ${changes.jsonRepresentation()}");
-  //       });
-  //
-  //   OneSignal.shared.setSMSSubscriptionObserver(
-  //           (OSSMSSubscriptionStateChanges changes) {
-  //         print("SMS SUBSCRIPTION STATE CHANGED ${changes.jsonRepresentation()}");
-  //       });
-  //
-  //   // NOTE: Replace with your own app ID from https://www.onesignal.com
-  //   await OneSignal.shared
-  //       .setAppId("cf4f1249-e830-4362-86c0-0e0820d48ebd");
-  //
-  //   bool requiresConsent = await OneSignal.shared.requiresUserPrivacyConsent();
-  //
-  //   this.setState(() {
-  //     _enableConsentButton = requiresConsent;
-  //   });
-  //
-  //   OneSignal.shared.consentGranted(true);
-  //   bool userProvidedPrivacyConsent = await OneSignal.shared.userProvidedPrivacyConsent();
-  //   print("USER PROVIDED PRIVACY CONSENT: $userProvidedPrivacyConsent");
-  // }
-
-
 
 @override
   void dispose() {
@@ -184,12 +91,5 @@ class _AppState extends State<App> with AfterLayoutMixin{
       ),
     );
   }
-
-  @override
-  void afterFirstLayout(BuildContext context) {
-    // TODO: implement afterFirstLayout
-
-  }
-
 
 }

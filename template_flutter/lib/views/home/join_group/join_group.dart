@@ -77,21 +77,8 @@ class _JoinGroupState extends State<JoinGroup> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // setState(() {
-    //   _codeFamily.text =
-    //       Provider.of<UserProvider>(context, listen: false).codeFamily;
-    // });
-    loadData();
   }
-    loadData() async {
-      // final prefs = await SharedPreferences.getInstance();
-      // var codeFamily = prefs.getString("codeFamily");
-      // if(codeFamily!=null){
-      //   setState(() {
-      //     _codeFamily.text = codeFamily;
-      //   });
-      // }
-    }
+
   @override
   Widget build(BuildContext context) {
     _user = Provider.of<UserProvider>(context);

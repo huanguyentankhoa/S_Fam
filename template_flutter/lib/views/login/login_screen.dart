@@ -88,7 +88,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     stateOnlyText = ButtonStatus.idle;
                   });
                 });
-                printLog("Đăng nhập không thành công");
+               print("Đăng nhập không thành công");
               });
         } else {
           setState(() {
