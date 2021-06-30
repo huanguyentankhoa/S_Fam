@@ -1,4 +1,0 @@
-io/flutter/plugins/GeneratedPluginRegistrant.java
- io.flutter.plugins.GeneratedPluginRegistrant
-com/honghm/s_fam/BuildConfig.java
- com.honghm.s_fam.BuildConfig
