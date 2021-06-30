@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+
 // import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:s_fam/common/constants/general.dart';
 import 'package:s_fam/models/album.dart';
@@ -8,6 +9,7 @@ import 'package:s_fam/models/member.dart';
 import 'package:s_fam/models/storage_account.dart';
 import 'package:s_fam/models/storage_item.dart';
 import 'package:s_fam/models/work.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config.dart';
 
@@ -99,7 +101,7 @@ class APIServices {
       }
       return false;
     } on DioError catch (e) {
-     print(e);
+      print(e);
       rethrow;
     }
   }
@@ -120,7 +122,7 @@ class APIServices {
       }
       return false;
     } catch (e) {
-     print(e);
+      print(e);
     }
     return false;
   }
@@ -142,11 +144,11 @@ class APIServices {
           success!();
         } else
           fail!(response.statusCode!);
-      }else{
+      } else {
         fail!(response.statusCode!);
       }
     } on DioError catch (e) {
-     print(e);
+      print(e);
       fail!(e.response!.statusCode!);
     }
   }
@@ -163,7 +165,7 @@ class APIServices {
         fail!(response.statusCode!);
       }
     } on DioError catch (e) {
-     print(e);
+      print(e);
       fail!(e.response!.statusCode!);
     }
   }
@@ -177,7 +179,7 @@ class APIServices {
       }
       return _group;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -193,7 +195,7 @@ class APIServices {
       }
       return events;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -209,7 +211,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -225,7 +227,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -238,7 +240,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -253,7 +255,7 @@ class APIServices {
       }
       return _event;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -268,7 +270,7 @@ class APIServices {
       }
       return works;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -285,7 +287,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -304,7 +306,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -317,7 +319,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -332,7 +334,7 @@ class APIServices {
       }
       return _work;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -349,7 +351,7 @@ class APIServices {
       }
       return _works;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -364,7 +366,7 @@ class APIServices {
       }
       return _listItems;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -381,7 +383,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -397,7 +399,7 @@ class APIServices {
       }
       return _listAccounts;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -414,7 +416,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -430,7 +432,7 @@ class APIServices {
       }
       return _listAlbums;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -443,7 +445,7 @@ class APIServices {
       }
       return album;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -460,7 +462,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -479,7 +481,7 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
@@ -493,7 +495,7 @@ class APIServices {
       }
       return item;
     } catch (e) {
-     print(e);
+      print(e);
     }
   }
 
@@ -512,7 +514,7 @@ class APIServices {
         fail!();
     } catch (e) {
       print(e);
-     print(e);
+      print(e);
     }
   }
 
@@ -530,38 +532,38 @@ class APIServices {
       } else
         fail!();
     } catch (e) {
-     print(e);
+      print(e);
       fail!();
     }
   }
 
-  Future<void> sendFirebaseToken({required email,required token})async{
-    try{
-      Response response =
+  Future<void> sendFirebaseToken({required email, required token}) async {
+    try {
       await dio.put("$url" + "api/v1/user/$email/edittoken/?fbtoken=$token");
-     print(response.data);
-    }on DioError catch(e){
-     print(e);
+    } on DioError catch (e) {
+      print(e);
     }
   }
-  Future<void> sendNotification() async {
-   try{
-     dio.options.headers = {
-       'Content-Type': 'application/json',
-       'Authorization':
-       'key=AAAAkNZ_-y8:APA91bF_-kRFCNbgNe7SeIxTzaz6ePRJzYa6R2l-gxivuaHg0x1Tb5Cod61eymeCAJuGLLFNP0RKzZwfFL1AmBK-4JrtDpn6TswllPX3nrIzxmmFi-INljqOESmiB6Dd-n0F9dp9gIK7'
-     };
-     await dio.post(
-       "https://fcm.googleapis.com/fcm/send",
-       data: {
-         "to":
-         "dIjxXbtVRG2AH5AW8MBi90:APA91bFQrBA5ldU04L-smbarYxYd4hE0-jRZM6rmp9pC-UZkcj9IZ4e3CwwdCMX9sQI8TjueKS_oR0QllNEoCyE1T3iqg_weqNC8gM7hmV-yuIME5xi4DQHzu7P-0HPvHJvbJb9w35SF",
-         "notification": {"title": "This is a test title", "body": "OK HELLO"},
-         "data": {"title": "This is a test title", "body": "OK HELLO"}
-       },
-     );
-   }catch(e) {
-     print(e);
-   }
+
+  Future<void> sendNotification(token, {title, body}) async {
+    try {
+      dio.options.headers = {
+        'Content-Type': 'application/json',
+        'Authorization':
+            'key=AAAAfmCFdRE:APA91bH1ArkQbJRicOkff9sy-gUAebGeUPZYT2DWIzvu9bFOqbTXvkRwoy61cW6F_OGv3mdNLCGjkRlbL83k5r1ru-X8CJh3EmuSvses1Y_KaIANYfL7EyXO9S2IBYNRYWtMxhfOvp9c'
+      };
+      await dio.post(
+        "https://fcm.googleapis.com/fcm/send",
+        data: {
+          "to": token,
+          "data": {
+            "title": title == "" ? "Thông báo" : title,
+            "body": body == "" ? "Bạn có thông báo mới" : body
+          }
+        },
+      );
+    } catch (e) {
+      print(e);
+    }
   }
 }

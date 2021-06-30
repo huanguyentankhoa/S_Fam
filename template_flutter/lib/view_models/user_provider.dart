@@ -15,8 +15,6 @@ import 'dart:convert' as convert;
 
 class UserProvider with ChangeNotifier {
   late Member userCurrentLogin;
-
-
   String token = "";
   String codeFamily = "";
   Group? groupOfUser;
@@ -131,7 +129,7 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
       success!();
       loading = false;
-      notifyListeners(); 
+      notifyListeners();
     } catch (e) {
       loading = false;
       print('[ERROR] $e');
@@ -426,9 +424,11 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendNotification()async{
-   try{
-     await _services.sendNotification();
+  Future<void> sendNotification({required title,required body})async{
+    final prefs = await SharedPreferences.getInstance();
+    var tokenFirebase = prefs.getString("TokenFirebase");
+    try{
+     await _services.sendNotification(tokenFirebase,title: title, body: body);
    }catch(e){
      print(e);
    }

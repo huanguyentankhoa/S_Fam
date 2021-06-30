@@ -2,20 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/view_models/notification/notification_handler.dart';
 import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/widgets/animation_bell.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../menu.dart';
-
-FlutterLocalNotificationsPlugin notificationsPlugin =
-    FlutterLocalNotificationsPlugin();
 
 class FollowPosition extends StatefulWidget {
   const FollowPosition({Key? key}) : super(key: key);
@@ -64,36 +61,11 @@ class _FollowPositionState extends State<FollowPosition>
     }
   }
 
-  showLocalNotification() async {
-    var androidDetails = AndroidNotificationDetails(
-      "channelId",
-      "channelName",
-      "channelDescription",
-      importance: Importance.high,
-    );
-    var iosDetails = IOSNotificationDetails();
-    var generalNotificationDetail =
-        NotificationDetails(android: androidDetails, iOS: iosDetails);
-    await notificationsPlugin.show(
-        0, "Yêu cầu trợ giúp", "Bạn đang phát tín hiệu trợ giúp", generalNotificationDetail);
-
-  }
-
-  void initializeSettingLocalNotification() async {
-    var initializeAndroid = AndroidInitializationSettings('appicon');
-    var initializeIOS = IOSInitializationSettings();
-    var initializeSetting =
-        InitializationSettings(android: initializeAndroid, iOS: initializeIOS);
-    await notificationsPlugin.initialize(initializeSetting);
-    notificationsPlugin.initialize(initializeSetting);
-  }
-
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     loadInit();
-    initializeSettingLocalNotification();
     _timer = Timer.periodic(Duration(seconds: 3), (timer) {
       if (mounted) if (_enablePosition) {
         _getCurrentPosition();
@@ -194,8 +166,13 @@ class _FollowPositionState extends State<FollowPosition>
                     margin: EdgeInsets.only(right: 10, left: 10),
                     child: AnimationBell(
                       onTap: (result) {
-                        if (result) showLocalNotification();
-                        else notificationsPlugin.cancelAll();
+
+                        if (result) {
+                          user.sendNotification(title: "Yêu cầu trợ giúp",body: "Bạn đang phát tín hiệu trợ giúp");
+                        }
+                        else {
+                          NotificationHandler.flutterLocalNotificationPlugin.cancelAll();
+                        }
                       },
                     ),
                   )

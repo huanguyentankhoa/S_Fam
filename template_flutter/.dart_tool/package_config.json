@@ -8,12 +8,6 @@
       "languageVersion": "2.12"
     },
     {
-      "name": "android_alarm_manager",
-      "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/android_alarm_manager-2.0.2",
-      "packageUri": "lib/",
-      "languageVersion": "2.12"
-    },
-    {
       "name": "async",
       "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/async-2.5.0",
       "packageUri": "lib/",
@@ -674,7 +668,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-06-29T08:21:34.495160Z",
+  "generated": "2021-06-30T10:04:10.427580Z",
   "generator": "pub",
   "generatorVersion": "2.12.0"
 }

@@ -59,7 +59,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         stateOnlyText = ButtonStatus.loading;
       });
       Future.delayed(Duration(seconds: 2), () async {
-        user.sendNotification();
+        user.sendNotification(title: "",body: "");
         if (_formKey.currentState!.validate()||listMember.isNotEmpty) {
           user.createEvent(data: data,
               success: () {

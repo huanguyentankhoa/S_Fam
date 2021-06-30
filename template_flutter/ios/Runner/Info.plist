@@ -40,6 +40,15 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Why is my app authenticating using face id?</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>photos</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>add photos</string>
+	<key>NSCameraUsageDescription</key>
+    <string>add camera</string>
+	<key>NSMicrophoneUsageDescription</key>
 	<false/>
 </dict>
 </plist>
