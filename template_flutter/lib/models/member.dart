@@ -7,9 +7,7 @@ class Member {
   String? avatarUrl;
   String? gender;
   String? pinCode;
-
-  // late List<String> idGroups;
-
+  String? codeFamily;
   Member.fromJson(Map<String, dynamic> parsedJson) {
     try {
       id = parsedJson["id"];
@@ -20,6 +18,7 @@ class Member {
       avatarUrl = parsedJson["imgUrl"] ;
       phoneNumber = parsedJson["phoneNumber"].toString();
       pinCode = parsedJson["pinCode"] ?? "";
+     // codeFamily = parsedJson[""];
     } catch (e) {}
   }
 

@@ -39,9 +39,7 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
   @override
   void initState() {
     super.initState();
-    // listWork = Provider.of<UserProvider>(context, listen: false).listWork;
-    // listEvent = Provider.of<UserProvider>(context, listen: false).listEvent;
-    // print(Provider.of<UserProvider>(context, listen: false).listWork.length);
+
   }
 
   getMarked(works, events) {
@@ -56,22 +54,46 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
       );
     });
     if (kind == "Chung") {
-      events.forEach((item) {
-        DateTime dt = DateTime.parse(item.date);
-        _markedDateMap.add(
-          DateTime(dt.year, dt.month, dt.day),
-          Event(
-            date: DateTime(dt.year, dt.month, dt.day),
-            dot: Container(
-              margin: EdgeInsets.symmetric(horizontal: 1.0),
-              decoration:
+      for(int i = 0;i<events.length;i++){
+        if(i>=1){
+          DateTime dt1 = DateTime.parse(events[i-1].date);
+          DateTime dt2 = DateTime.parse(events[i].date);
+          if(dt2.day!=dt1.day){
+            _markedDateMap.add(
+              DateTime(dt2.year, dt2.month, dt2.day),
+              Event(
+                date: DateTime(dt2.year, dt2.month, dt2.day),
+                dot: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 1.0),
+                  decoration:
                   BoxDecoration(color: primaryMain, shape: BoxShape.circle),
-              height: 5.0,
-              width: 5.0,
+                  height: 5.0,
+                  width: 5.0,
+                ),
+              ),
+            );
+          }
+        }else{
+          DateTime dt = DateTime.parse(events[i].date);
+          EventList<Event> _marked= new EventList<Event>(
+            events: {},
+          );
+          _marked.add(
+            DateTime(dt.year, dt.month, dt.day),
+            Event(
+              date: DateTime(dt.year, dt.month, dt.day),
+              dot: Container(
+                margin: EdgeInsets.symmetric(horizontal: 1.0),
+                decoration:
+                BoxDecoration(color: primaryMain, shape: BoxShape.circle),
+                height: 5.0,
+                width: 5.0,
+              ),
             ),
-          ),
-        );
-      });
+          );
+          _markedDateMap = _marked;
+        }
+      }
     }
     setState(() {
       isLoading = false;

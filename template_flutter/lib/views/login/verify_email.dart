@@ -127,6 +127,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
   @override
   Widget build(BuildContext context) {
     _user = Provider.of<UserProvider>(context);
+    print(widget.code);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBarGenerated(),

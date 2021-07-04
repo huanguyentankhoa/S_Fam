@@ -29,7 +29,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-
     Future.delayed(Duration(milliseconds: 500), () {
      if(mounted)
        setState(() {
@@ -105,7 +104,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     margin: EdgeInsets.only(right: 5, top: 5),
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.black)),
+                        border: Border.all(color: Colors.black),),
                     child: Icon(
                       Icons.notifications_none,
                       size: 20,
@@ -120,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   decoration:
                       BoxDecoration(color: Colors.red, shape: BoxShape.circle),
                   child: Text(
-                    "2",
+                    "0",
                     style: kText10White,
                   ),
                 )
@@ -187,7 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       height: 7,
                                     ),
                                     Text(
-                                      index == 0 ? "Tôi" : member.name!,
+                                      member.id == user.userCurrentLogin.id ? "Tôi" : member.name!,
                                       style: kSubText14Black,
                                     )
                                   ],

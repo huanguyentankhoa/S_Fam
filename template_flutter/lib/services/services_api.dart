@@ -183,10 +183,10 @@ class APIServices {
     }
   }
 
-  Future<List<EventModel>?> getListEvent() async {
+  Future<List<EventModel>?> getListEvent({required email}) async {
     List<EventModel>? events = [];
     try {
-      Response response = await dio.get("$url" + "api/v1/event/events");
+      Response response = await dio.get("$url" + "api/v1/event/email/$email");
 
       if (response.statusCode == 200) {
         response.data.forEach((item) {
@@ -259,10 +259,10 @@ class APIServices {
     }
   }
 
-  Future<List<Work>?> getListWork() async {
+  Future<List<Work>?> getListWork({required email}) async {
     try {
       List<Work>? works = [];
-      Response response = await dio.get("$url" + "api/v1/schedule");
+      Response response = await dio.get("$url" + "api/v1/schedule/email/$email");
       if (response.statusCode == 200 && response.data != null) {
         response.data.forEach((item) {
           works.add(Work.formJson(item));
@@ -355,10 +355,10 @@ class APIServices {
     }
   }
 
-  Future<List<StorageItem>?> getListStorageItem() async {
+  Future<List<StorageItem>?> getListStorageItem({required email}) async {
     try {
       List<StorageItem> _listItems = [];
-      Response response = await dio.get("$url" + "api/v1/item/items");
+      Response response = await dio.get("$url" + "api/v1/item/email/$email");
       if (response.statusCode == 200 && response.data != null) {
         response.data.forEach((item) {
           _listItems.add(StorageItem.formJson(item));
@@ -388,10 +388,10 @@ class APIServices {
     }
   }
 
-  Future<List<StorageAccount>?> getListStorageAccount() async {
+  Future<List<StorageAccount>?> getListStorageAccount({required email}) async {
     try {
       List<StorageAccount> _listAccounts = [];
-      Response response = await dio.get("$url" + "api/v1/note/notes");
+      Response response = await dio.get("$url" + "api/v1/note/email/$email");
       if (response.statusCode == 200 && response.data != null) {
         response.data.forEach((item) {
           _listAccounts.add(StorageAccount.formJson(item));
@@ -421,10 +421,10 @@ class APIServices {
     }
   }
 
-  Future<List<Album>?> getListAlbum() async {
+  Future<List<Album>?> getListAlbum({required email}) async {
     try {
       List<Album> _listAlbums = [];
-      Response response = await dio.get("$url" + "api/v1/album/albums");
+      Response response = await dio.get("$url" + "api/v1/album/email/$email");
       if (response.statusCode == 200 && response.data != null) {
         response.data.forEach((item) {
           _listAlbums.add(Album.formJson(item));
@@ -544,6 +544,32 @@ class APIServices {
       print(e);
     }
   }
+
+  Future<void> sendLocation({required email, required latitude, required longitude })async{
+    try{
+      Map<String, dynamic> data = {
+        "latitude": latitude,
+        "longitude": longitude
+      };
+     await dio.put("$url" + "api/v1/location/$email/update",data: data);
+    }on DioError catch(e){
+      print(e);
+    }
+  }
+
+  Future<dynamic> getLocation({required email})async{
+    try{
+      Response response = await dio.get("$url" + "api/v1/location/$email/update");
+      if(response.statusCode==200){
+        return response.data;
+      }
+      return null;
+    }on DioError catch(e){
+      print(e);
+      return null;
+    }
+  }
+
 
   Future<void> sendNotification(token, {title, body}) async {
     try {

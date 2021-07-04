@@ -55,9 +55,9 @@ class _MainScreenState extends State<MainScreen>
               .userCurrentLogin
               .email!);
     });
+    Provider.of<UserProvider>(context, listen: false).getDataMyGroup();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (Provider.of<UserProvider>(context, listen: false).loggedIn) {
-        Provider.of<UserProvider>(context, listen: false).getDataMyGroup();
         Provider.of<UserProvider>(context, listen: false).getListWork();
         Provider.of<UserProvider>(context, listen: false).getListEvent();
         Provider.of<UserProvider>(context, listen: false).getListStorageItem();

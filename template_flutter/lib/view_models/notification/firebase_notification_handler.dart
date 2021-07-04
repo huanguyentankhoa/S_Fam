@@ -66,7 +66,7 @@ class FirebaseNotification {
                     CupertinoDialogAction(
                       child: Text("OK"),
                       isDefaultAction: true,
-                      onPressed: () =>
+                      onPressed: () => 
                           Navigator.of(context, rootNavigator: true).pop(),
                     ),
                   ],

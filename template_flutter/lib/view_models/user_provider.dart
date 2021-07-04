@@ -224,7 +224,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListEvent() async {
     try {
-      listEvent = (await _services.getListEvent())!;
+      listEvent = (await _services.getListEvent(email: userCurrentLogin.email))!;
       notifyListeners();
     } catch (e) {}
   }
@@ -269,7 +269,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListWork() async {
     try {
-      listWork = (await _services.getListWork())!;
+      listWork = (await _services.getListWork(email: userCurrentLogin.email))!;
       listWork.sort((a, b) => b.id.toString().compareTo(a.id.toString()));
       notifyListeners();
     } catch (e) {
@@ -327,7 +327,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListStorageItem({Function? success}) async {
     try {
-      listStorageItem = (await _services.getListStorageItem())!;
+      listStorageItem = (await _services.getListStorageItem(email: userCurrentLogin.email))!;
       success!(listStorageItem);
       notifyListeners();
     } catch (e) {}
@@ -335,7 +335,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListStorageAccount({Function? success}) async {
     try {
-      listStorageAccount = (await _services.getListStorageAccount())!;
+      listStorageAccount = (await _services.getListStorageAccount(email: userCurrentLogin.email))!;
       success!(listStorageAccount);
       notifyListeners();
     } catch (e) {}
@@ -371,7 +371,7 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListAlbums() async {
     try {
-      listAlbum = (await _services.getListAlbum())!;
+      listAlbum = (await _services.getListAlbum(email: userCurrentLogin.email))!;
       notifyListeners();
     } catch (e) {}
   }
@@ -433,7 +433,21 @@ class UserProvider with ChangeNotifier {
      print(e);
    }
   }
-
+  Future<void> sendLocation({required latitude,required longitude})async{
+    try{
+      await _services.sendLocation(email: userCurrentLogin.email!, latitude: latitude, longitude: longitude);
+    }catch(e){
+      print(e);
+    }
+  }
+  Future<dynamic> getLocation({required email})async{
+    try{
+     var location = await _services.getLocation(email: email);
+     return location;
+    }catch(e){
+      print(e);
+    }
+  }
 // void _handleSendNotification() async {
   //   var deviceState = await OneSignal.shared.getDeviceState();
   //

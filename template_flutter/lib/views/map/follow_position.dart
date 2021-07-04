@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/models/member.dart';
 import 'package:s_fam/view_models/notification/notification_handler.dart';
 import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/widgets/animation_bell.dart';
@@ -24,20 +25,23 @@ class FollowPosition extends StatefulWidget {
 class _FollowPositionState extends State<FollowPosition>
     with AutomaticKeepAliveClientMixin {
   var _position = LatLng(10.8468936, 106.6408852);
-  Completer<GoogleMapController> _controller = Completer();
+  late GoogleMapController _controller;
   GlobalKey<ScaffoldState> _key = GlobalKey();
   late Timer _timer;
+  List<Marker> listMarkers = [];
+
+
   static final CameraPosition _kGoogle = CameraPosition(
     target: LatLng(10.8468936, 106.6408852),
     zoom: 14.4746,
   );
   bool _enablePosition = false;
-
+  List<Member> membersOfGroup = [];
   _getCurrentPosition() async {
     var position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
 
-    final GoogleMapController controller = await _controller.future;
+    final GoogleMapController controller =  _controller;
     final CameraPosition _kCurrentPosition = CameraPosition(
         target: LatLng(position.latitude, position.longitude),
         zoom: 19.151926040649414);
@@ -45,6 +49,8 @@ class _FollowPositionState extends State<FollowPosition>
     setState(() {
       _position = LatLng(position.latitude, position.longitude);
     });
+    await Provider.of<UserProvider>(context, listen: false).sendLocation(
+        latitude: _position.latitude, longitude: _position.longitude);
   }
 
   loadInit() async {
@@ -59,6 +65,18 @@ class _FollowPositionState extends State<FollowPosition>
         _enablePosition = false;
       });
     }
+   membersOfGroup.forEach((m) async {
+     Map<String, dynamic> location =  await Provider.of<UserProvider>(context, listen: false).getLocation(email: m.email);
+     double lat = double.parse(location["latitude"].toString());
+     double long = double.parse(location["longitude"].toString());
+     listMarkers.add(Marker(
+         markerId: MarkerId(m.id.toString()),
+       position: LatLng(lat,long)
+
+     ));
+   });
+
+
   }
 
   @override
@@ -66,6 +84,7 @@ class _FollowPositionState extends State<FollowPosition>
     // TODO: implement initState
     super.initState();
     loadInit();
+    membersOfGroup = Provider.of<UserProvider>(context, listen: false).groupOfUser!.listMembers;
     _timer = Timer.periodic(Duration(seconds: 3), (timer) {
       if (mounted) if (_enablePosition) {
         _getCurrentPosition();
@@ -118,19 +137,10 @@ class _FollowPositionState extends State<FollowPosition>
             mapType: MapType.normal,
             zoomControlsEnabled: false,
             onTap: (LatLng _latLng) async {},
-            markers: Set.of([
-              Marker(
-                markerId: MarkerId("home"),
-                draggable: true,
-                position: _position,
-                zIndex: 2,
-                flat: true,
-                anchor: Offset(0.5, 0.5),
-              ),
-            ]),
+           markers: listMarkers.toSet(),
             initialCameraPosition: _kGoogle,
             onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
+              _controller = controller;
             },
           ),
           Container(
@@ -166,12 +176,13 @@ class _FollowPositionState extends State<FollowPosition>
                     margin: EdgeInsets.only(right: 10, left: 10),
                     child: AnimationBell(
                       onTap: (result) {
-
                         if (result) {
-                          user.sendNotification(title: "Yêu cầu trợ giúp",body: "Bạn đang phát tín hiệu trợ giúp");
-                        }
-                        else {
-                          NotificationHandler.flutterLocalNotificationPlugin.cancelAll();
+                          user.sendNotification(
+                              title: "Yêu cầu trợ giúp",
+                              body: "Bạn đang phát tín hiệu trợ giúp");
+                        } else {
+                          NotificationHandler.flutterLocalNotificationPlugin
+                              .cancelAll();
                         }
                       },
                     ),

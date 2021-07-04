@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ class _PersonScreenState extends State<PersonScreen> {
   TextEditingController _mail = TextEditingController();
   TextEditingController _pinCode = TextEditingController(text: "123456");
   TextEditingController _password = TextEditingController(text: "123456");
+  String codeFamily = "";
   File? _image;
   late UserProvider _user;
 
@@ -410,6 +412,53 @@ class _PersonScreenState extends State<PersonScreen> {
                 height: 20,
               ),
 
+              ///Mã gia đình
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 5, top: 5),
+                      child: Text(
+                        "Mã gia đình: ${_user.groupOfUser!.name}",
+                        style: kText14BlackBold,
+                      ),
+                    ),
+                    Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: textSecondary),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: MediaQuery.of(context).size.width-80,
+                              padding: EdgeInsets.only(left: 8),
+                              child: Text(_user.groupOfUser!.key.toString(),style: kSubText16Black,)),
+                          InkWell(
+                            onTap: () {
+                              FlutterClipboard.copy(_user.groupOfUser!.key).then((value) {
+                                const snackBar = SnackBar(
+                                  content: Text("Đã sao chép mã gia đình"),
+                                  duration: Duration(seconds: 3),
+                                );
+                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                              });
+                            },
+                            child: Container(
+                              child: Icon(Icons.copy,color: textSecondary,),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              SizedBox(
+                height: 20,
+              ),
               InkWell(
                 onTap: () {
                   _user.logout();
