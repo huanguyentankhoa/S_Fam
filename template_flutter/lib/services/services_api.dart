@@ -559,7 +559,7 @@ class APIServices {
 
   Future<dynamic> getLocation({required email})async{
     try{
-      Response response = await dio.get("$url" + "api/v1/location/$email/update");
+      Response response = await dio.get("$url" + "api/v1/location/$email");
       if(response.statusCode==200){
         return response.data;
       }
@@ -570,7 +570,18 @@ class APIServices {
     }
   }
 
-
+  Future<bool> sendWarning({required email})async{
+    try{
+      Response response = await dio.get("$url" + "api/v1/warning/$email");
+      if(response.statusCode==200){
+        return true;
+      }
+      return false;
+    }on DioError catch(e){
+      print(e);
+      return false;
+    }
+  }
   Future<void> sendNotification(token, {title, body}) async {
     try {
       dio.options.headers = {

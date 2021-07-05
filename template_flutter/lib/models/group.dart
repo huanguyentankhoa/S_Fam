@@ -7,7 +7,6 @@ class Group{
   late List<Member> listMembers;
 
   Group.fromJason(Map<String, dynamic> parsedJson){
-    print(parsedJson);
    idGroup = parsedJson["id"]!=null?parsedJson["id"]:0;
    key = parsedJson["key"];
 
@@ -16,9 +15,9 @@ class Group{
 
    parsedJson["memberSet"].forEach((m){
      Member _m = Member.fromJson(m);
+
      members.add(_m);
    });
-
    listMembers = members;
   }
 }

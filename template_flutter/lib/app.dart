@@ -70,7 +70,7 @@ class _AppState extends State<App> {
           return MultiProvider(
             providers: [
               ChangeNotifierProvider.value(value: EventProvider()),
-              ChangeNotifierProvider.value(value: UserProvider()),
+              ChangeNotifierProvider(create: (_) => UserProvider()),
             ],
             child: MaterialApp(
               debugShowCheckedModeBanner: false,

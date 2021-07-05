@@ -46,10 +46,15 @@ class FirebaseNotification {
 
     //Handle message
     FirebaseMessaging.onMessage.listen((remoteMessage) {
-      if (Platform.isAndroid)
-        showNotification(remoteMessage.notification!.title,
-            remoteMessage.notification!.body);
-      else if (Platform.isIOS)
+      if (Platform.isAndroid) {
+        if (remoteMessage.data.isEmpty) {
+          showNotification(
+              remoteMessage.data["title"], remoteMessage.data["body"]);
+        } else if (remoteMessage.notification != null) {
+          showNotification(remoteMessage.notification!.title,
+              remoteMessage.notification!.body);
+        }
+      } else if (Platform.isIOS)
         showNotification(remoteMessage.notification!.title,
             remoteMessage.notification!.body);
     });
@@ -66,7 +71,7 @@ class FirebaseNotification {
                     CupertinoDialogAction(
                       child: Text("OK"),
                       isDefaultAction: true,
-                      onPressed: () => 
+                      onPressed: () =>
                           Navigator.of(context, rootNavigator: true).pop(),
                     ),
                   ],
@@ -84,7 +89,7 @@ class FirebaseNotification {
 
     var ios = IOSNotificationDetails();
     var platForm = NotificationDetails(android: androidChannel, iOS: ios);
-
+    print(title);
     await NotificationHandler.flutterLocalNotificationPlugin
         .show(0, title, body, platForm, payload: "My Payload");
   }

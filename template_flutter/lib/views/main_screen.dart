@@ -26,18 +26,19 @@ class MainScreen extends StatefulWidget {
   _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen>
-    with AutomaticKeepAliveClientMixin {
+class _MainScreenState extends State<MainScreen> {
   late Timer _timer;
   FirebaseNotification firebaseNotification = FirebaseNotification();
+
+  late AppProvider app;
+  late UserProvider user;
+
   List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     CalendarScreen(),
     StorageScreen(),
     FollowPosition()
   ];
-  late AppProvider app;
-
   void _onItemTap(int index) {
     setState(() {
       app.tabMainSelected = index;
@@ -55,7 +56,6 @@ class _MainScreenState extends State<MainScreen>
               .userCurrentLogin
               .email!);
     });
-    Provider.of<UserProvider>(context, listen: false).getDataMyGroup();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (Provider.of<UserProvider>(context, listen: false).loggedIn) {
         Provider.of<UserProvider>(context, listen: false).getListWork();
@@ -80,6 +80,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   Widget build(BuildContext context) {
     app = Provider.of<AppProvider>(context);
+    user = Provider.of<UserProvider>(context);
     return Scaffold(
       body: WillPopScope(
         onWillPop: () async {
@@ -202,7 +203,4 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
 }

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+
 //import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:s_fam/common/constants/general.dart';
 import 'package:s_fam/models/album.dart';
@@ -14,7 +15,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' as convert;
 
 class UserProvider with ChangeNotifier {
-  late Member userCurrentLogin;
+  late Member _userCurrentLogin;
+
+  Member get userCurrentLogin => _userCurrentLogin;
+
+  set userCurrentLogin(Member value) {
+    _userCurrentLogin = value;
+    notifyListeners();
+  }
+
   String token = "";
   String codeFamily = "";
   Group? groupOfUser;
@@ -24,7 +33,6 @@ class UserProvider with ChangeNotifier {
   List<StorageAccount> listStorageAccount = [];
   List<StorageItem> listStorageItem = [];
   List<Album> listAlbum = [];
-
 
   UserProvider() {
     getLoggedInState();
@@ -43,7 +51,7 @@ class UserProvider with ChangeNotifier {
       Function? success,
       Function(String)? fail}) async {
     try {
-       printLog("[LOGIN] Login start");
+      printLog("[LOGIN] Login start");
       notifyListeners();
       await _services.login(
         email.toString(),
@@ -62,7 +70,7 @@ class UserProvider with ChangeNotifier {
           fail!(e);
         },
       );
-       printLog("[LOGIN] Login end");
+      printLog("[LOGIN] Login end");
       return;
     } catch (e) {
       loggedIn = false;
@@ -74,9 +82,9 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getUserInfo(_email) async {
     try {
-       printLog("Get info user");
+      printLog("Get info user");
       await _services.getMemberByEmail(_email, success: (_member) {
-        userCurrentLogin = _member;
+        _userCurrentLogin = _member;
         notifyListeners();
       }, fail: (statusCode) {
         loggedIn = false;
@@ -90,9 +98,14 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getDataMyGroup() async {
-    groupOfUser = (await _services.getDataMyGroup(userCurrentLogin.email!))!;
-    notifyListeners();
+  Future<Group?> getDataMyGroup() async {
+    try {
+      groupOfUser = await _services.getDataMyGroup(_userCurrentLogin.email!);
+      notifyListeners();
+      return groupOfUser;
+    } catch (e) {
+      print(e);
+    }
   }
 
   Future<void> checkEmail(email,
@@ -102,7 +115,7 @@ class UserProvider with ChangeNotifier {
         success!(code);
       }, fail: fail);
     } catch (e) {
-     print(e);
+      //print(e);
     }
   }
 
@@ -110,7 +123,7 @@ class UserProvider with ChangeNotifier {
     try {
       return await _services.confirmEmail(token);
     } catch (e) {
-     print(e);
+      //print(e);
     }
     return false;
   }
@@ -118,12 +131,12 @@ class UserProvider with ChangeNotifier {
   Future<void> registration(
       {infoUser, saveLogin, Function? success, Function? fail}) async {
     try {
-       printLog("[REGISTER] register start");
+      //printLog("[REGISTER] register start");
       loading = true;
       notifyListeners();
       bool result = (await _services.registration(infoUser));
       if (result == true) {
-         printLog("[REGISTER] register end");
+        printLog("[REGISTER] register end");
         loggedIn = true;
       }
       notifyListeners();
@@ -159,7 +172,7 @@ class UserProvider with ChangeNotifier {
         var data = convert.jsonDecode(prefs.getString("account")!);
         await getUserInfo(data["email"]);
         notifyListeners();
-      }else{
+      } else {
         loggedIn = false;
         saveLoginState(loggedIn);
         notifyListeners();
@@ -189,14 +202,13 @@ class UserProvider with ChangeNotifier {
       {required familyName, required Function? success, Function? fail}) async {
     var result = await _services.createGroup(
         familyName: familyName,
-        email: userCurrentLogin.email!,
+        email: _userCurrentLogin.email!,
         success: (_code) {
           codeFamily = _code;
           notifyListeners();
           success!(codeFamily);
         });
-    if(!result)
-      fail!();
+    if (!result) fail!();
   }
 
   Future<void> joinFamily(
@@ -204,7 +216,7 @@ class UserProvider with ChangeNotifier {
     try {
       await _services.joinGroup(
           key: key,
-          email: userCurrentLogin.email!,
+          email: _userCurrentLogin.email!,
           success: () {
             codeFamily = key;
             joinedGroup = true;
@@ -224,7 +236,8 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListEvent() async {
     try {
-      listEvent = (await _services.getListEvent(email: userCurrentLogin.email))!;
+      listEvent =
+          (await _services.getListEvent(email: _userCurrentLogin.email))!;
       notifyListeners();
     } catch (e) {}
   }
@@ -273,7 +286,7 @@ class UserProvider with ChangeNotifier {
       listWork.sort((a, b) => b.id.toString().compareTo(a.id.toString()));
       notifyListeners();
     } catch (e) {
-      print(e);
+      //print(e);
     }
   }
 
@@ -327,7 +340,8 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListStorageItem({Function? success}) async {
     try {
-      listStorageItem = (await _services.getListStorageItem(email: userCurrentLogin.email))!;
+      listStorageItem =
+          (await _services.getListStorageItem(email: userCurrentLogin.email))!;
       success!(listStorageItem);
       notifyListeners();
     } catch (e) {}
@@ -335,7 +349,8 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListStorageAccount({Function? success}) async {
     try {
-      listStorageAccount = (await _services.getListStorageAccount(email: userCurrentLogin.email))!;
+      listStorageAccount = (await _services.getListStorageAccount(
+          email: userCurrentLogin.email))!;
       success!(listStorageAccount);
       notifyListeners();
     } catch (e) {}
@@ -371,7 +386,8 @@ class UserProvider with ChangeNotifier {
 
   Future<void> getListAlbums() async {
     try {
-      listAlbum = (await _services.getListAlbum(email: userCurrentLogin.email))!;
+      listAlbum =
+          (await _services.getListAlbum(email: userCurrentLogin.email))!;
       notifyListeners();
     } catch (e) {}
   }
@@ -424,53 +440,67 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> sendNotification({required title,required body})async{
+  Future<void> sendNotification({required title, required body}) async {
     final prefs = await SharedPreferences.getInstance();
     var tokenFirebase = prefs.getString("TokenFirebase");
-    try{
-     await _services.sendNotification(tokenFirebase,title: title, body: body);
-   }catch(e){
-     print(e);
-   }
-  }
-  Future<void> sendLocation({required latitude,required longitude})async{
-    try{
-      await _services.sendLocation(email: userCurrentLogin.email!, latitude: latitude, longitude: longitude);
-    }catch(e){
-      print(e);
+    try {
+      await _services.sendNotification(tokenFirebase, title: title, body: body);
+    } catch (e) {
+      //print(e);
     }
   }
-  Future<dynamic> getLocation({required email})async{
-    try{
-     var location = await _services.getLocation(email: email);
-     return location;
-    }catch(e){
-      print(e);
+
+  Future<void> sendLocation({required latitude, required longitude}) async {
+    try {
+      await _services.sendLocation(
+          email: _userCurrentLogin.email!,
+          latitude: latitude,
+          longitude: longitude);
+    } catch (e) {
+      //print(e);
+    }
+  }
+
+  Future<Map<String, dynamic>?> getLocation({required email}) async {
+    try {
+      var location = await _services.getLocation(email: email);
+      return location;
+    } catch (e) {
+      return null;
+      //print(e);
+    }
+  }
+
+  Future<void> sendWarning() async {
+    try {
+      await _services.sendWarning(email: _userCurrentLogin.email);
+    } catch (e) {
+      //print(e);
     }
   }
 // void _handleSendNotification() async {
-  //   var deviceState = await OneSignal.shared.getDeviceState();
-  //
-  //   if (deviceState == null || deviceState.userId == null)
-  //     return;
-  //
-  //   var playerId = deviceState.userId!;
-  //
-  //   var imgUrlString =
-  //       "http://cdn1-www.dogtime.com/assets/uploads/gallery/30-impossibly-cute-puppies/impossibly-cute-puppy-2.jpg";
-  //
-  //   var notification = OSCreateNotification(
-  //       playerIds: [playerId],
-  //       content: "this is a test from OneSignal's Flutter SDK",
-  //       heading: "Test Notification",
-  //       iosAttachments: {"id1": imgUrlString},
-  //       bigPicture: imgUrlString,
-  //       buttons: [
-  //         OSActionButton(text: "test1", id: "id1"),
-  //         OSActionButton(text: "test2", id: "id2")
-  //       ]);
-  //
-  //   var response = await OneSignal.shared.postNotification(notification);
-  //
-  // }
+//   var deviceState = await OneSignal.shared.getDeviceState();
+//
+//   if (deviceState == null || deviceState.userId == null)
+//     return;
+//
+//   var playerId = deviceState.userId!;
+//
+//   var imgUrlString =
+//       "http://cdn1-www.dogtime.com/assets/uploads/gallery/30-impossibly-cute-puppies/impossibly-cute-puppy-2.jpg";
+//
+//   var notification = OSCreateNotification(
+//       playerIds: [playerId],
+//       content: "this is a test from OneSignal's Flutter SDK",
+//       heading: "Test Notification",
+//       iosAttachments: {"id1": imgUrlString},
+//       bigPicture: imgUrlString,
+//       buttons: [
+//         OSActionButton(text: "test1", id: "id1"),
+//         OSActionButton(text: "test2", id: "id2")
+//       ]);
+//
+//   var response = await OneSignal.shared.postNotification(notification);
+//
+// }
 }

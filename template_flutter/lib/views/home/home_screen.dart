@@ -29,14 +29,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    Future.delayed(Duration(milliseconds: 500), () {
-     if(mounted)
-       setState(() {
-         isLoading = false;
-       });
-    });
+   loadInit();
+   super.initState();
   }
 
+  loadInit()async{
+    await Provider.of<UserProvider>(context, listen: false).getDataMyGroup();
+   await Future.delayed(Duration(milliseconds: 500), () {
+      if(mounted)
+        setState(() {
+          isLoading = false;
+        });
+    });
+  }
   @override
   Widget build(BuildContext context) {
     user = Provider.of<UserProvider>(context);
