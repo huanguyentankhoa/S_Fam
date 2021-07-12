@@ -56,10 +56,9 @@ class _MainScreenState extends State<MainScreen> {
               .userCurrentLogin
               .email!);
     });
+
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (Provider.of<UserProvider>(context, listen: false).loggedIn) {
-        Provider.of<UserProvider>(context, listen: false).getListWork();
-        Provider.of<UserProvider>(context, listen: false).getListEvent();
         Provider.of<UserProvider>(context, listen: false).getListStorageItem();
         Provider.of<UserProvider>(context, listen: false)
             .getListStorageAccount();
@@ -92,7 +91,7 @@ class _MainScreenState extends State<MainScreen> {
                         color: Colors.white,
                         alignment: Alignment.center,
                         child: Text(
-                          "Bạn chắc chắn muốn thoát?",
+                          "Bạn đang muốn đăng xuất?",
                           style: kText16Black,
                         )),
                     actions: [
@@ -107,7 +106,7 @@ class _MainScreenState extends State<MainScreen> {
                                   (route) => false);
                             },
                             child: Text(
-                              "THOÁT",
+                              "ĐĂNG XUẤT",
                               style: kText16BlueBold,
                             ),
                           ),

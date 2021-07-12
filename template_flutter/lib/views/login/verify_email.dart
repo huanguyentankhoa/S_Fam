@@ -15,7 +15,9 @@ class VerifyEmail extends StatefulWidget {
   final String? screenNext;
   final String? email;
   final String? code;
-  const VerifyEmail({Key? key, this.screenNext,this.email,this.code}) : super(key: key);
+
+  const VerifyEmail({Key? key, this.screenNext, this.email, this.code})
+      : super(key: key);
 
   @override
   _VerifyEmailState createState() => _VerifyEmailState();
@@ -40,45 +42,64 @@ class _VerifyEmailState extends State<VerifyEmail> {
         stateOnlyText = ButtonStatus.loading;
       });
       Future.delayed(Duration(seconds: 2), () async {
-        if(_formKey.currentState!.validate()){
-          bool result = await _user.confirmEmail(textEditingController.text);
-          if(result){
+        if (_formKey.currentState!.validate()) {
+          switch (widget.screenNext) {
+            case "changePass":
+              bool result =
+                  await _user.confirmEmailForgot(textEditingController.text);
+              if (result) {
+                setState(() {
+                  stateOnlyText = ButtonStatus.success;
+                });
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChangePassword(email: widget.email!,fromMenu: false,),
+                  ),
+                );
+                setState(() {
+                  stateOnlyText = ButtonStatus.idle;
+                });
+              } else {
+                setState(() {
+                  stateOnlyText = ButtonStatus.fail;
+                });
+                Future.delayed(Duration(seconds: 2), () {
+                  setState(() {
+                    stateOnlyText = ButtonStatus.idle;
+                  });
+                });
+              }
 
-            switch (widget.screenNext){
-              case "changePass":
+              break;
+            case "continueSignIn":
+              bool result =
+                  await _user.confirmEmail(textEditingController.text);
+              if (result) {
+                setState(() {
+                  stateOnlyText = ButtonStatus.success;
+                });
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ChangePassword(),
+                    builder: (context) => InfoAccount(email: widget.email),
                   ),
                 );
-                break;
-              case "continueSignIn":
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => InfoAccount(
-                        email: widget.email
-                    ),
-                  ),
-                );
-                break;
-            }
-            setState(() {
-              stateOnlyText = ButtonStatus.success;
-            });
-            setState(() {
-              stateOnlyText = ButtonStatus.idle;
-            });
-          }else{
-            setState(() {
-              stateOnlyText = ButtonStatus.fail;
-            });
-            Future.delayed(Duration(seconds: 2), () {
-              setState(() {
-                stateOnlyText = ButtonStatus.idle;
-              });
-            });
+                setState(() {
+                  stateOnlyText = ButtonStatus.idle;
+                });
+              } else {
+                setState(() {
+                  stateOnlyText = ButtonStatus.fail;
+                });
+                Future.delayed(Duration(seconds: 2), () {
+                  setState(() {
+                    stateOnlyText = ButtonStatus.idle;
+                  });
+                });
+              }
+
+              break;
           }
         } else {
           setState(() {
@@ -91,22 +112,26 @@ class _VerifyEmailState extends State<VerifyEmail> {
           });
         }
       });
-
     }
   }
+
+  String _email = "";
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     errorController = StreamController<ErrorAnimationType>();
+
+    _email = widget.email!.replaceRange(0, 5, "*******");
     setState(() {
       isDone = false;
     });
     const oneSec = const Duration(seconds: 1);
     _timer = Timer.periodic(
       oneSec,
-          (Timer timer) => setState(
-            () {
+      (Timer timer) => setState(
+        () {
           if (_start < 1) {
             timer.cancel();
           } else {
@@ -124,6 +149,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
     errorController.close();
     _timer.cancel();
   }
+
   @override
   Widget build(BuildContext context) {
     _user = Provider.of<UserProvider>(context);
@@ -150,20 +176,17 @@ class _VerifyEmailState extends State<VerifyEmail> {
                 Container(
                   margin: EdgeInsets.only(top: 8),
                   width: 295,
-                  child:  Text.rich(
+                  child: Text.rich(
                     TextSpan(
                       text: 'Mã xác thực đã được gửi tới email: ',
-                      style:kSubText14Black,
+                      style: kSubText14Black,
                       children: <TextSpan>[
-                        TextSpan(
-                            text: '******23@gmail.com',
-                            style:kText14Black),
+                        TextSpan(text: _email, style: kText14Black),
                         // can add more TextSpans here...
                       ],
                     ),
                   ),
                 ),
-
                 SizedBox(
                   height: 40,
                 ),
@@ -193,8 +216,7 @@ class _VerifyEmailState extends State<VerifyEmail> {
                       width: 10,
                       decoration: BoxDecoration(
                           border: Border.all(color: Colors.black),
-                          shape: BoxShape.circle
-                      ),
+                          shape: BoxShape.circle),
                     ),
                     animationDuration: Duration(milliseconds: 300),
                     pinTheme: PinTheme(
@@ -203,7 +225,8 @@ class _VerifyEmailState extends State<VerifyEmail> {
                       borderWidth: 1,
                       fieldHeight: 50,
                       fieldWidth: 46,
-                      activeColor: isDone ? Colors.greenAccent : Colors.redAccent,
+                      activeColor:
+                          isDone ? Colors.greenAccent : Colors.redAccent,
                       inactiveFillColor: Colors.transparent,
                       inactiveColor: Color(0xFFCCCCCC),
                       activeFillColor: Color(0xffF8F8FA),
@@ -228,14 +251,13 @@ class _VerifyEmailState extends State<VerifyEmail> {
                 SizedBox(
                   height: 32,
                 ),
-
                 Container(
                   height: 52,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child:ProgressButtonAnimation(
+                  child: ProgressButtonAnimation(
                     onPressed: onPressedCustomButton,
                     state: stateOnlyText,
                     height: 52,
@@ -267,9 +289,11 @@ class _VerifyEmailState extends State<VerifyEmail> {
                 ),
                 Container(
                   alignment: Alignment.center,
-                  child: Text( _start < 10
-                      ?  "00:0${_start}s"
-                      :  "00:${_start}s",style: kText16Black,),),
+                  child: Text(
+                    _start < 10 ? "00:0${_start}s" : "00:${_start}s",
+                    style: kText16Black,
+                  ),
+                ),
                 SizedBox(
                   height: 28,
                 ),

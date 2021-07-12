@@ -1,18 +1,22 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/models/member.dart';
+import 'package:s_fam/view_models/app_provider.dart';
 import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/views/home/storage/account/acccout.dart';
 import 'package:s_fam/views/home/storage/account/add_item_account.dart';
-import 'package:s_fam/views/home/storage/account/pin_code%20_account.dart';
+import 'package:s_fam/views/home/storage/account/create_pin_code.dart';
 import 'package:s_fam/views/home/storage/album/album.dart';
 import 'package:s_fam/views/home/storage/home_items/add_item.dart';
 import 'package:s_fam/views/home/storage/home_items/home_items.dart';
 import 'package:s_fam/widgets/text_input.dart';
 
 import '../../menu.dart';
+import 'account/pin_code _account.dart';
 
 class StorageScreen extends StatefulWidget {
   const StorageScreen({Key? key}) : super(key: key);
@@ -30,12 +34,24 @@ class _StorageScreenState extends State<StorageScreen>
 
   TextEditingController addAlbum = TextEditingController();
   late UserProvider user;
+  Member? member;
+  bool isEnterPinCode = false;
+  late AppProvider app;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _controller = TabController(length: 3, vsync: this);
+    member = Provider.of<UserProvider>(context, listen: false).userCurrentLogin;
+    if (Provider.of<AppProvider>(context, listen: false).fromMenu) {
+      setState(() {
+        _controller.index =
+            Provider.of<AppProvider>(context, listen: false).tabStorageSelected;
+        Provider.of<AppProvider>(context, listen: false).fromMenu = false;
+        isEnterPinCode = true;
+      });
+    }
   }
 
   @override
@@ -45,10 +61,17 @@ class _StorageScreenState extends State<StorageScreen>
     _controller.dispose();
   }
 
+  void _onItemTap(int index) {
+    setState(() {
+      app.tabStorageSelected = index;
+    });
+  }
+
   @override
-  // ignore: must_call_super
   Widget build(BuildContext context) {
     user = Provider.of<UserProvider>(context);
+    app = Provider.of<AppProvider>(context);
+
     return SafeArea(
       child: Scaffold(
         key: _key,
@@ -72,40 +95,84 @@ class _StorageScreenState extends State<StorageScreen>
           child: Column(
             children: [
               Container(
-                height: 20,
-                color: Color(0xFFC8C9CD),
+                height: 25,
+               // color: Color(0xFFC8C9CD),
                 child: TabBar(
                   controller: _controller,
+                  indicatorSize: TabBarIndicatorSize.label,
                   indicator: BoxDecoration(
                     color: primaryMain,
+                    borderRadius: BorderRadius.circular(50),
                   ),
                   onTap: (index) async {
-                    // if (index == 1) {
-                    //   setState(() {
-                    //     _controller.index = 0;
-                    //   });
-                    //   var result = await showDialog(
-                    //     context: context,
-                    //     builder: (context) => PinCodeAccount(),
-                    //   );
-                    //   if (result != null && result)
-                    //     setState(() {
-                    //       _controller.index = index;
-                    //     });
-                    // }
+                    _onItemTap(index);
+                    if (index == 1 && !isEnterPinCode) {
+                      setState(() {
+                        _controller.index = 0;
+                      });
+                      if (user.userCurrentLogin.pinCode != null) {
+                        var result = await showDialog(
+                          context: context,
+                          builder: (context) => PinCodeAccount(),
+                        );
+                        if (result != null && result)
+                          setState(() {
+                            _controller.index = index;
+                            isEnterPinCode = true;
+                          });
+                      } else {
+                        await showDialog(
+                          context: context,
+                          builder: (context) => CreatePinCode(
+                            success: (pinCode) {
+                              setState(() {
+                                _controller.index = index;
+                                isEnterPinCode = true;
+                              });
+                            },
+                          ),
+                        );
+                      }
+                    }
                   },
                   unselectedLabelStyle: kText14Black,
-                  unselectedLabelColor: Colors.black,
+                  unselectedLabelColor: primaryMain,
                   labelStyle: kText14White,
                   tabs: [
                     Tab(
-                      text: "Vật dụng",
+                     // text: "Vật dụng",
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(color: primaryMain, width: 1)),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text("Vật dụng"),
+                        ),
+                      ),
                     ),
                     Tab(
-                      text: "Tài khoản",
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(color: primaryMain, width: 1)),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text("Tài khoản"),
+                        ),
+                      ),
                     ),
                     Tab(
-                      text: "Album ảnh",
+                      child: Container(
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(color: primaryMain, width: 1)),
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: Text("Album"),
+                        ),
+                      ),
+
                     ),
                   ],
                 ),
@@ -113,6 +180,7 @@ class _StorageScreenState extends State<StorageScreen>
               Expanded(
                 child: TabBarView(
                   controller: _controller,
+                  physics: NeverScrollableScrollPhysics(),
                   children: [HomeItems(), Account(), AlbumScreen()],
                 ),
               ),
@@ -204,8 +272,7 @@ class _StorageScreenState extends State<StorageScreen>
                                   success: () {
                                     Navigator.pop(context);
                                   },
-                                fail: (){}
-                              );
+                                  fail: () {});
                             },
                             child: Container(
                               height: 52,
@@ -226,11 +293,8 @@ class _StorageScreenState extends State<StorageScreen>
                     ),
                   ],
                 ),
-
               );
-              setState(() {
-
-              });
+              setState(() {});
             }
           },
         ),
@@ -239,6 +303,5 @@ class _StorageScreenState extends State<StorageScreen>
   }
 
   @override
-  // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }

@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_template/flutter_template.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
-import 'package:s_fam/models/work.dart';
 import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/widgets/text_input.dart';
 
@@ -49,8 +47,8 @@ class _CreateEventPersonState extends State<CreateEventPerson> {
       "endDay": dateEnd,
       "startTime": timeStart,
       "endTime": timeEnd,
-      "repeatType": repeatType,
-      "detail": note.text
+      "repeatType": repeatType.isEmpty?["NONE"]:repeatType,
+      "detail": note.text,
     };
     if (stateOnlyText == ButtonStatus.idle) {
       setState(() {
@@ -71,6 +69,7 @@ class _CreateEventPersonState extends State<CreateEventPerson> {
                       stateOnlyText = ButtonStatus.idle;
                     });
                 });
+                Navigator.pop(context);
               },
               fail: () {
                 setState(() {
@@ -383,7 +382,7 @@ class _CreateEventPersonState extends State<CreateEventPerson> {
                                 final timePicked = await showRoundedTimePicker(
                                   context: context,
                                   initialTime: TimeOfDay.now(),
-                                  locale: Locale("en", "EN"),
+                                  locale: Locale("vi", "VN"),
                                 );
                                 if (timePicked != null) {
                                   setState(() {
@@ -434,7 +433,7 @@ class _CreateEventPersonState extends State<CreateEventPerson> {
                                 final timePicked = await showRoundedTimePicker(
                                   context: context,
                                   initialTime: TimeOfDay.now(),
-                                  locale: Locale("en", "EN"),
+                                  locale: Locale("vi", "VN"),
                                 );
                                 if (timePicked != null) {
                                   setState(() {

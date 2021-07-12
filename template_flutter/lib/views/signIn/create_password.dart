@@ -140,25 +140,29 @@ class _CreatePasswordState extends State<CreatePassword> {
                     return value!.isEmpty ? "Không được bỏ trống" : null;
                   },
                   controller: _password,
-                  suffixIcon: Container(
-                    width: 20,
-                    padding: EdgeInsets.only(top: 10),
-                    alignment: Alignment.center,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          showPass = !showPass;
-                        });
-                      },
-                      child: Icon(
-                        showPass
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: textSecondary,
-                        size: 21,
+                  decoration:InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.only(left: 10, top: 10),
+                    suffixIcon: Container(
+                      width: 20,
+                      padding: EdgeInsets.only(top: 10),
+                      alignment: Alignment.center,
+                      child: InkWell(
+                        onTap: () {
+                          setState(() {
+                            showPass = !showPass;
+                          });
+                        },
+                        child: Icon(
+                          showPass
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: textSecondary,
+                          size: 21,
+                        ),
                       ),
-                    ),
-                  ),
+                    )
+                  ) ,
                 ),
                 SizedBox(
                   height: 27,
@@ -175,25 +179,29 @@ class _CreatePasswordState extends State<CreatePassword> {
                             : null;
                   },
                   controller: _rePassword,
-                  suffixIcon: Container(
-                    width: 20,
-                    padding: EdgeInsets.only(top: 10),
-                    alignment: Alignment.center,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          showRePass = !showRePass;
-                        });
-                      },
-                      child: Icon(
-                        showRePass
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: textSecondary,
-                        size: 21,
-                      ),
-                    ),
-                  ),
+                 decoration: InputDecoration(
+                     border: InputBorder.none,
+                     contentPadding: EdgeInsets.only(left: 10, top: 10),
+                   suffixIcon: Container(
+                     width: 20,
+                     padding: EdgeInsets.only(top: 10),
+                     alignment: Alignment.center,
+                     child: InkWell(
+                       onTap: () {
+                         setState(() {
+                           showRePass = !showRePass;
+                         });
+                       },
+                       child: Icon(
+                         showRePass
+                             ? Icons.visibility_off_outlined
+                             : Icons.visibility_outlined,
+                         color: textSecondary,
+                         size: 21,
+                       ),
+                     ),
+                   )
+                 ),
                 ),
                 SizedBox(
                   height: 32,

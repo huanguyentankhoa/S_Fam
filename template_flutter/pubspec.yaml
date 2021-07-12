@@ -59,6 +59,9 @@ dependencies:
   multi_image_picker: ^4.8.01
   flutter_absolute_path:
     git: https://github.com/kornperkus/flutter_absolute_path.git
+  http: ^0.13.3
+  mime: ^1.0.0
+  http_parser: ^4.0.0
 
 dev_dependencies:
   flutter_test:

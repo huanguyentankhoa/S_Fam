@@ -6,6 +6,7 @@ import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:s_fam/common/config.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
@@ -29,10 +30,9 @@ class _ShowAlbumState extends State<ShowAlbum> {
   File? file;
 
   Future<void> pickImagesFromGallery(List<Asset> resultList) async {
-
-
     resultList.forEach((img) async {
-      await FlutterAbsolutePath.getAbsolutePath(img.identifier!).then((value) async {
+      await FlutterAbsolutePath.getAbsolutePath(img.identifier!)
+          .then((value) async {
         var fileImg = await MultipartFile.fromFile(value!, filename: img.name);
         FormData data = FormData.fromMap({"files": fileImg});
 
@@ -48,7 +48,6 @@ class _ShowAlbumState extends State<ShowAlbum> {
         );
       });
     });
-
   }
 
   @override
@@ -64,7 +63,8 @@ class _ShowAlbumState extends State<ShowAlbum> {
 
     List<Widget> _list = [];
     _album!.listImage.forEach((img) {
-      var path = "https://testfam.herokuapp.com/api/v1/image/download?path=album/${_album!.id}&name=$img";
+      var path = "${serverConfig["url"]}" +
+          "api/v1/image/download?path=album/${_album!.id}&name=$img";
       _list.add(itemImage(path));
     });
     setState(() {
@@ -95,7 +95,6 @@ class _ShowAlbumState extends State<ShowAlbum> {
                   style: kText14BlackBold,
                 ),
               ),
-
               Expanded(
                 child: GridView.builder(
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -131,7 +130,7 @@ class _ShowAlbumState extends State<ShowAlbum> {
                           ),
                         );
                       }
-                      return listImage[index-1];
+                      return listImage[index - 1];
                     }),
               ),
             ],
@@ -271,8 +270,9 @@ class _ShowAlbumState extends State<ShowAlbum> {
           width: 105,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              color: Color(0xFFC4C4C4), borderRadius: BorderRadius.circular(15)),
-          child: Tools().getImage(link,fit: BoxFit.fill) ?? Container(),
+              color: Color(0xFFC4C4C4),
+              borderRadius: BorderRadius.circular(15)),
+          child: Tools().getImage(link, fit: BoxFit.fill) ?? Container(),
         ),
       ),
     );

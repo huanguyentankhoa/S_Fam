@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/common/tools.dart';
 
 class ItemCalendar extends StatelessWidget {
   final String? time;
   final String? name;
   final String? sub;
+  final String avtOwner;
 
-  const ItemCalendar({
-    Key? key,
-    @required this.name,
-    @required this.time,
-    @required this.sub,
-  }) : super(key: key);
+  const ItemCalendar(
+      {Key? key,
+      @required this.name,
+      @required this.time,
+      @required this.sub,
+      required this.avtOwner})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,19 +24,26 @@ class ItemCalendar extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipOval(
-            child: Container(
-              height: 32,
-              width: 32,
-              margin: EdgeInsets.only(top: 8),
-              decoration: BoxDecoration(
-                border: Border.all(color: primaryMain),
-                shape: BoxShape.circle,
-              ),
-              child: Image.asset("assets/images/Ellipse10.png",fit: BoxFit.fill,),
+          Container(
+            height: 32,
+            width: 32,
+            margin: EdgeInsets.only(top: 8),
+            decoration: BoxDecoration(
+              border: Border.all(color: primaryMain),
+              shape: BoxShape.circle,
+            ),
+            child: ClipOval(
+              child: avtOwner == ""
+                  ? Image.asset(
+                "assets/images/appicon.png",
+                fit: BoxFit.fill,
+              )
+                  : Tools().getImage(avtOwner),
             ),
           ),
-          SizedBox(width: 8,),
+          SizedBox(
+            width: 8,
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -41,7 +51,7 @@ class ItemCalendar extends StatelessWidget {
                 height: 16,
               ),
               Container(
-                width: MediaQuery.of(context).size.width-90,
+                width: MediaQuery.of(context).size.width - 90,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -49,7 +59,6 @@ class ItemCalendar extends StatelessWidget {
                       name == null ? "" : name!,
                       style: kText14BlackBold,
                     ),
-
                     Text(
                       time == null ? "" : time!,
                       style: kText14Green,

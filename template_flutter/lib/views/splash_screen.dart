@@ -42,11 +42,17 @@ class _SplashScreenState extends State<SplashScreen>
               key: codeFamily,
               success: () {
                 Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => MainScreen()));
+                    MaterialPageRoute(
+                        settings: RouteSettings(name: "/main"),
+                        builder: (context) => MainScreen()));
               },
               fail: (statusCode) {
                 Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                    MaterialPageRoute(
+                        settings: RouteSettings(name: "/welcome"),
+                        builder: (context) => WelcomeScreen(
+
+                    )));
               },
             );
           }
@@ -57,18 +63,24 @@ class _SplashScreenState extends State<SplashScreen>
               onBack: (){
                 user.loggedIn = false;
                 Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => WelcomeScreen()));
+                    MaterialPageRoute(
+                        settings: RouteSettings(name: "/welcome"),
+                        builder: (context) => WelcomeScreen()));
               },
             ),
           );
         }
       } catch (e) {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+            context, MaterialPageRoute(
+            settings: RouteSettings(name: "/welcome"),
+            builder: (context) => WelcomeScreen()));
       }
     } else
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+          context, MaterialPageRoute(
+          settings: RouteSettings(name: "/welcome"),
+          builder: (context) => WelcomeScreen()));
   }
 
   @override

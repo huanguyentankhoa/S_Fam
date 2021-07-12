@@ -4,12 +4,20 @@ import 'package:clipboard/clipboard.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
+import 'package:flutter_rounded_date_picker/flutter_rounded_date_picker.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:s_fam/common/config.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
+import 'package:s_fam/models/group.dart';
 import 'package:s_fam/view_models/app_provider.dart';
 import 'package:s_fam/view_models/user_provider.dart';
+import 'package:s_fam/views/home/storage/account/create_pin_code.dart';
+import 'package:s_fam/views/login/change_password.dart';
 
 import '../welcome_screen.dart';
 
@@ -22,38 +30,74 @@ class PersonScreen extends StatefulWidget {
 
 class _PersonScreenState extends State<PersonScreen> {
   TextEditingController _name = TextEditingController();
-  TextEditingController _dob = TextEditingController();
+  // TextEditingController _dob = TextEditingController();
+  String dob = "";
   TextEditingController _mail = TextEditingController();
-  TextEditingController _pinCode = TextEditingController(text: "123456");
+  TextEditingController _pinCode = TextEditingController();
   TextEditingController _password = TextEditingController(text: "123456");
   String codeFamily = "";
-  File? _image;
+  String? _imagePath;
   late UserProvider _user;
 
-  getImageSuccess(File? image) async {
-    if (image != null) {
+  getImageSuccess(String? path) async {
+    if (path != null) {
       setState(() {
-        _image = image;
+        _imagePath = path;
       });
-      var fileImg = await MultipartFile.fromFile(_image!.path,
-          filename: _image!.path.split('/').last);
-
-      FormData data = FormData.fromMap({"files": fileImg});
-      _user.uploadAvtUser(data: data);
+      _user.uploadAvtUser(
+          imagePath: _imagePath!,
+          success: () {
+            _user.getUserInfo(_mail.text);
+          },
+          fail: () {});
     }
   }
 
+  getImageGallerySuccess(List<Asset> resultList) async {
+    await FlutterAbsolutePath.getAbsolutePath(resultList.first.identifier!)
+        .then((value) async {
+      setState(() {
+        _imagePath = value;
+      });
+      _user.uploadAvtUser(
+          imagePath: _imagePath!,
+          success: () {
+            _user.getUserInfo(_mail.text);
+          },
+          fail: () {});
+    });
+  }
+
+  Group? _group;
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     var member =
         Provider.of<UserProvider>(context, listen: false).userCurrentLogin;
+    loadInit();
+    print(member.dob);
     setState(() {
       _name.text = member.name!;
       _mail.text = member.email!;
-      _dob.text = Tools().getDate(member.dob!);
+      dob =member.dob!;
+      _pinCode.text = member.pinCode ?? "";
     });
+  }
+
+  loadInit() async {
+    _group = await Provider.of<UserProvider>(context, listen: false)
+        .getDataMyGroup();
+    setState(() {});
+  }
+
+  editInfo() async {
+    await Provider.of<UserProvider>(context, listen: false).editInfoUser(
+      email: _mail.text,
+      dob: dob,
+      fullName: _name.text,
+    );
+    Provider.of<UserProvider>(context, listen: false).getUserInfo(_mail.text);
   }
 
   @override
@@ -92,27 +136,26 @@ class _PersonScreenState extends State<PersonScreen> {
                           color: Colors.white,
                           shape: BoxShape.circle,
                           border: Border.all(color: primaryMain)),
-                      child: _image != null
-                          ? Image.file(
-                              _image!,
-                              fit: BoxFit.fill,
-                            )
-                          : _user.userCurrentLogin.avatarUrl != null &&
-                                  _user.userCurrentLogin.avatarUrl != ""
-                              ? Tools()
-                                  .getImage(_user.userCurrentLogin.avatarUrl!)
-                              : Container(
-                                  child: Image.asset(
-                                    "assets/icons/logo.png",
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
+                      child: _user.userCurrentLogin.avatarUrl != null &&
+                              _user.userCurrentLogin.avatarUrl != ""
+                          ? Tools().getImage("${serverConfig["url"]}" +
+                              "api/v1/image/download?path=${_mail.text}&name=${_user.userCurrentLogin.avatarUrl}")
+                          : Container(
+                              child: Image.asset(
+                                "assets/icons/logo.png",
+                                fit: BoxFit.contain,
+                              ),
+                            ),
                     ),
                   ),
                   InkWell(
                     onTap: () {
                       _app.showPicker(
-                          context: context, success: getImageSuccess);
+                          context: context,
+                          successCamera: getImageSuccess,
+                          successGallery: (result) {
+                            getImageGallerySuccess(result);
+                          });
                     },
                     child: Container(
                       height: 28,
@@ -129,6 +172,44 @@ class _PersonScreenState extends State<PersonScreen> {
                     ),
                   )
                 ],
+              ),
+
+              ///Email
+              Container(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(bottom: 5, top: 5),
+                      child: Text(
+                        "Email",
+                        style: kText14BlackBold,
+                      ),
+                    ),
+                    Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                          border: Border.all(color: textSecondary),
+                          borderRadius: BorderRadius.circular(8)),
+                      child: TextFormField(
+                        controller: _mail,
+                        readOnly: true,
+                        textAlignVertical: TextAlignVertical.center,
+                        style: kSubText16Black,
+                        decoration: InputDecoration(
+                            contentPadding: EdgeInsets.only(left: 8),
+                            border: InputBorder.none,
+                            suffixIcon: Container(
+                              height: 20,
+                              width: 20,
+                            )),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 20,
               ),
 
               ///Họ tên
@@ -167,6 +248,7 @@ class _PersonScreenState extends State<PersonScreen> {
                                         setState(() {
                                           _name.text = value;
                                         });
+                                        editInfo();
                                       }),
                                 );
                               },
@@ -198,95 +280,49 @@ class _PersonScreenState extends State<PersonScreen> {
                         style: kText14BlackBold,
                       ),
                     ),
-                    Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: textSecondary),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: TextFormField(
-                        controller: _dob,
-                        readOnly: true,
-                        textAlignVertical: TextAlignVertical.center,
-                        style: kSubText16Black,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.only(left: 8),
-                            border: InputBorder.none,
-                            suffixIcon: InkWell(
-                              onTap: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (context) => EditText(
-                                      name: "Ngày Sinh",
-                                      text: _dob.text,
-                                      onChange: (value) {
-                                        setState(() {
-                                          _dob.text = value;
-                                        });
-                                      }),
-                                );
-                              },
-                              child: Container(
-                                child: Icon(
-                                  Icons.edit,
-                                  color: textSecondary,
-                                ),
-                              ),
-                            )),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
 
-              ///Gmail
-              Container(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 5, top: 5),
-                      child: Text(
-                        "Gmail",
-                        style: kText14BlackBold,
-                      ),
-                    ),
-                    Container(
-                      height: 48,
-                      decoration: BoxDecoration(
-                          border: Border.all(color: textSecondary),
-                          borderRadius: BorderRadius.circular(8)),
-                      child: TextFormField(
-                        controller: _mail,
-                        readOnly: true,
-                        textAlignVertical: TextAlignVertical.center,
-                        style: kSubText16Black,
-                        decoration: InputDecoration(
-                            contentPadding: EdgeInsets.only(left: 8),
-                            border: InputBorder.none,
-                            suffixIcon: InkWell(
-                              onTap: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (context) => EditText(
-                                      name: "Gmail",
-                                      text: _mail.text,
-                                      onChange: (value) {
-                                        setState(() {
-                                          _mail.text = value;
-                                        });
-                                      }),
-                                );
-                              },
-                              child: Container(
-                                child: Icon(
-                                  Icons.edit,
-                                  color: textSecondary,
-                                ),
+                    InkWell(
+                      onTap: () async {
+                        DateTime? newDateTime = await showRoundedDatePicker(
+                          context: context,
+                          theme: ThemeData(primarySwatch: Colors.blue),
+                          height: 350,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime(DateTime.now().year - 100),
+                          lastDate: DateTime(DateTime.now().year + 5),
+                          borderRadius: 16,
+                        );
+                        if (newDateTime != null) {
+                          setState(() {
+                            dob = newDateTime.toString();
+                          });
+                          editInfo();
+                        }
+                      },
+                      child: Container(
+                        height: 50,
+                        padding: EdgeInsets.only(left: 12, right: 12),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: textSecondary),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              Tools().getDate(dob),
+                              style: kSubText16Black,
+                            ),
+                            Container(
+                              height: 24,
+                              width: 24,
+                              child: SvgPicture.asset(
+                                "assets/icons/calendar_date.svg",
+                                color: textSecondary,
+                                fit: BoxFit.fill,
                               ),
-                            )),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -326,15 +362,13 @@ class _PersonScreenState extends State<PersonScreen> {
                               onTap: () async {
                                 await showDialog(
                                   context: context,
-                                  builder: (context) => EditText(
-                                      name: "Mã pin",
-                                      isChangePass: true,
-                                      text: _pinCode.text,
-                                      onChange: (value) {
-                                        setState(() {
-                                          _pinCode.text = value;
-                                        });
-                                      }),
+                                  builder: (context) => CreatePinCode(
+                                    success: (newPinCode) {
+                                      setState(() {
+                                        _pinCode.text = newPinCode;
+                                      });
+                                    },
+                                  ),
                                 );
                               },
                               child: Container(
@@ -382,17 +416,14 @@ class _PersonScreenState extends State<PersonScreen> {
                             border: InputBorder.none,
                             suffixIcon: InkWell(
                               onTap: () async {
-                                await showDialog(
-                                  context: context,
-                                  builder: (context) => EditText(
-                                      name: "Mật khẩu",
-                                      isChangePass: true,
-                                      text: _password.text,
-                                      onChange: (value) {
-                                        setState(() {
-                                          _password.text = value;
-                                        });
-                                      }),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChangePassword(
+                                      email: _mail.text,
+                                      fromMenu: true,
+                                    ),
+                                  ),
                                 );
                               },
                               child: Container(
@@ -420,7 +451,7 @@ class _PersonScreenState extends State<PersonScreen> {
                     Padding(
                       padding: EdgeInsets.only(bottom: 5, top: 5),
                       child: Text(
-                        "Mã gia đình: ${_user.groupOfUser!.name}",
+                        "Mã gia đình: ${_group != null ? _group!.name : ""}",
                         style: kText14BlackBold,
                       ),
                     ),
@@ -432,21 +463,32 @@ class _PersonScreenState extends State<PersonScreen> {
                       child: Row(
                         children: [
                           Container(
-                            width: MediaQuery.of(context).size.width-80,
+                              width: MediaQuery.of(context).size.width - 80,
                               padding: EdgeInsets.only(left: 8),
-                              child: Text(_user.groupOfUser!.key.toString(),style: kSubText16Black,)),
+                              child: Text(
+                                _group != null ? _group!.key : "",
+                                style: kSubText16Black,
+                              )),
                           InkWell(
-                            onTap: () {
-                              FlutterClipboard.copy(_user.groupOfUser!.key).then((value) {
-                                const snackBar = SnackBar(
-                                  content: Text("Đã sao chép mã gia đình"),
-                                  duration: Duration(seconds: 3),
-                                );
-                                ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                              });
-                            },
+                            onTap: _group != null
+                                ? () {
+                                    FlutterClipboard.copy(_group!.key)
+                                        .then((value) {
+                                      const snackBar = SnackBar(
+                                        content:
+                                            Text("Đã sao chép mã gia đình"),
+                                        duration: Duration(seconds: 3),
+                                      );
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(snackBar);
+                                    });
+                                  }
+                                : () {},
                             child: Container(
-                              child: Icon(Icons.copy,color: textSecondary,),
+                              child: Icon(
+                                Icons.copy,
+                                color: textSecondary,
+                              ),
                             ),
                           )
                         ],
@@ -554,6 +596,7 @@ class _EditTextState extends State<EditText> {
                   TextFormField(
                     controller: _controller,
                     obscureText: widget.isChangePass!,
+                    style: kText14Black,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8)),
@@ -580,6 +623,7 @@ class _EditTextState extends State<EditText> {
                     TextFormField(
                       controller: _reController,
                       obscureText: widget.isChangePass!,
+                      style: kText14Black,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8)),
@@ -588,6 +632,19 @@ class _EditTextState extends State<EditText> {
                   ],
                 ),
               ),
+            // if (widget.isChangePass!)
+            //   TextInput(
+            //     height: 50,
+            //     controller: _reController,
+            //     labelText: widget.isChangePass!
+            //         ? "Nhập lại ${widget.name}"
+            //         : widget.name,
+            //     obscureText: widget.isChangePass!,
+            //     decoration: InputDecoration(
+            //       border: OutlineInputBorder(
+            //           borderRadius: BorderRadius.circular(8)),
+            //     ),
+            //   )
           ],
         ),
       ),

@@ -2,37 +2,28 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:s_fam/common/config.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/common/tools.dart';
+import 'package:s_fam/models/group.dart';
 import 'package:s_fam/models/member.dart';
 import 'package:s_fam/view_models/events/event_provider.dart';
-import 'package:s_fam/view_models/user_provider.dart';
 
 class AddMember extends StatefulWidget {
-  const AddMember({Key? key}) : super(key: key);
+  final Group group;
+  const AddMember({Key? key, required this.group}) : super(key: key);
 
   @override
   _AddMemberState createState() => _AddMemberState();
 }
 
 class _AddMemberState extends State<AddMember> {
-  bool check1 = false;
-  bool check2 = false;
-  bool check3 = false;
-  bool check4 = false;
 
   List<Member> _listMemberAdd = [];
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
     EventProvider _event = Provider.of<EventProvider>(context);
-    final _user = Provider.of<UserProvider>(context);
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -43,15 +34,15 @@ class _AddMemberState extends State<AddMember> {
               SizedBox(
                 height: 32,
               ),
+
               Expanded(
                 child: ListView.builder(
                     padding: EdgeInsets.symmetric(horizontal: 20),
-                    itemCount: _user.groupOfUser!.listMembers.length,
+                    itemCount: widget.group.listMembers.length,
                     itemBuilder: (context, index) {
-                      var member =  _user.groupOfUser!.listMembers[index];
+                      var member =   widget.group.listMembers[index];
                       return CardMember(
-                          name:member.name!,
-                          id: member.id.toString(),
+                        member: member,
                           onCheck: (value) {
                             if (value) {
                               _listMemberAdd.add(member);
@@ -60,6 +51,9 @@ class _AddMemberState extends State<AddMember> {
                                   .indexOf(member);
                               _listMemberAdd.removeAt(i);
                             }
+                           setState(() {
+
+                           });
                           });
                     }),
               ),
@@ -127,14 +121,12 @@ class _AddMemberState extends State<AddMember> {
 }
 
 class CardMember extends StatefulWidget {
-  final String name;
-  final String id;
+ final Member member;
   final Function(bool) onCheck;
 
   const CardMember({
     Key? key,
-    required this.name,
-    required this.id,
+  required this.member,
     required this.onCheck,
   }) : super(key: key);
 
@@ -162,10 +154,13 @@ class _CardMemberState extends State<CardMember> {
             width: 28,
             margin: EdgeInsets.only(left: 10, right: 10),
             decoration: BoxDecoration(shape: BoxShape.circle),
-            child: Image.asset("assets/images/Ellipse10.png"),
+            child: ClipOval(child: widget.member.avatarUrl==null||widget.member.avatarUrl==""?Image.asset(
+                "assets/images/Ellipse10.png"):
+            Tools().getImage("${serverConfig["url"]}" +
+                "api/v1/image/${widget.member.email}/avt/download"),)
           ),
           Text(
-            widget.name,
+            widget.member.name!,
             style: kText14Black,
           ),
           Expanded(

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_template/flutter_template.dart';
 import 'package:provider/provider.dart';
+import 'package:s_fam/common/config.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
+import 'package:s_fam/models/group.dart';
 import 'package:s_fam/models/member.dart';
 import 'package:s_fam/view_models/events/event_provider.dart';
 import 'package:s_fam/view_models/user_provider.dart';
@@ -26,6 +28,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   TextEditingController note = TextEditingController();
   List<Member> listMember = [];
   List<String> listEmailMember = [];
+  Group? group;
   String day = "";
   String startTime = "";
   String endTime = "";
@@ -39,7 +42,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    day = DateTime.now().toString();
   }
 
   void onPressedCustomButton() async {
@@ -52,15 +54,15 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       "eventRemindType": eventRemindType,
       "remindNum": remindNum,
       "appUserSet": listEmailMember.toList(),
-      "detail": note.text
+      "detail": note.text,
+      "owner":user.userCurrentLogin.email
     };
     if (stateOnlyText == ButtonStatus.idle) {
       setState(() {
         stateOnlyText = ButtonStatus.loading;
       });
       Future.delayed(Duration(seconds: 2), () async {
-        user.sendNotification(title: "",body: "");
-        if (_formKey.currentState!.validate()||listMember.isNotEmpty) {
+        if (_formKey.currentState!.validate()||listMember.isNotEmpty||day!="") {
           user.createEvent(data: data,
               success: () {
                 setState(() {
@@ -72,6 +74,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       stateOnlyText = ButtonStatus.idle;
                     });
                 });
+                Navigator.pop(context);
           }, fail: () {
               setState(() {
                 stateOnlyText = ButtonStatus.fail;
@@ -179,7 +182,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          Tools().getDate(day),
+                          day==""?"Cài đặt thời gian sự kiện":Tools().getDate(day),
                           style: kText16Black,
                         ),
                         Container(
@@ -226,18 +229,22 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     children: [
                       GestureDetector(
                         onTap: () async {
-                          List<Member> members = await Navigator.push(
+                          Group? group = await user.getDataMyGroup();
+                          List<Member>? members = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => AddMember(),
+                              builder: (context) => AddMember(group: group!),
                             ),
                           );
-                          members.forEach((element) {
-                            listEmailMember.add(element.email!);
-                          });
-                          setState(() {
-                            listMember = members;
-                          });
+                          if(members!=null){
+                            members.forEach((element) {
+                              listEmailMember.add(element.email!);
+                            });
+                            setState(() {
+                              listMember = members;
+                            });
+                          }
+
                         },
                         child: Container(
                           height: 48,
@@ -267,11 +274,12 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                             itemCount: _event.listMemberAdd.length,
                             scrollDirection: Axis.horizontal,
                             itemBuilder: (context, index) {
+                              Member member = _event.listMemberAdd[index];
                               return Row(
                                 children: [
                                   Container(
                                     height: 48,
-                                    width: 123,
+                                    width: 140,
                                     decoration: BoxDecoration(
                                         borderRadius: BorderRadius.circular(12),
                                         border:
@@ -286,12 +294,21 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                                               left: 10, right: 10),
                                           decoration: BoxDecoration(
                                               shape: BoxShape.circle),
-                                          child: Image.asset(
-                                              "assets/images/Ellipse10.png"),
+                                          child:ClipOval(
+                                            child:  member.avatarUrl==null||member.avatarUrl==""?Image.asset(
+                                                "assets/images/Ellipse10.png"):
+                                            Tools().getImage("${serverConfig["url"]}" +
+                                                "api/v1/image/${member.email}/avt/download")
+                                          ),
                                         ),
-                                        Text(
-                                          _event.listMemberAdd[index].name!,
-                                          style: kText14Black,
+                                        Container(
+                                          width: 82,
+                                          height: 48,
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            member.name!,
+                                            style: kText14Black,
+                                          ),
                                         ),
                                         Expanded(
                                             child: Container(

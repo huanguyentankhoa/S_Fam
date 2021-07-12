@@ -3,7 +3,6 @@ import 'package:flutter_template/flutter_template.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
-import 'package:s_fam/services/services_api.dart';
 import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/views/login/verify_email.dart';
 import 'package:s_fam/widgets/app_bar.dart';
@@ -30,34 +29,33 @@ class _SignInScreenState extends State<SignInScreen> {
       });
       Future.delayed(Duration(seconds: 2), () async {
         if (_formKey.currentState!.validate()) {
-           await _user.checkEmail(_email.text,success: (code){
-             setState(() {
-               stateOnlyText = ButtonStatus.success;
-             });
-             setState(() {
-               stateOnlyText = ButtonStatus.idle;
-             });
-             Navigator.push(
-                 context,
-                 MaterialPageRoute(
-                     builder: (context) => VerifyEmail(
-                       email: _email.text,
-                       code: code,
-                       screenNext: "continueSignIn",
-                     )));
-           },
-             fail: (){
-               setState(() {
-                 stateOnlyText = ButtonStatus.fail;
-               });
-               Future.delayed(Duration(seconds: 2), () {
-                 setState(() {
-                   stateOnlyText = ButtonStatus.idle;
-                 });
-               });
-             }
-           );
-
+          await _user.checkEmail(_email.text, success: (code) {
+            setState(() {
+              stateOnlyText = ButtonStatus.success;
+            });
+            setState(() {
+              stateOnlyText = ButtonStatus.idle;
+            });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => VerifyEmail(
+                  email: _email.text,
+                  code: code,
+                  screenNext: "continueSignIn",
+                ),
+              ),
+            );
+          }, fail: () {
+            setState(() {
+              stateOnlyText = ButtonStatus.fail;
+            });
+            Future.delayed(Duration(seconds: 2), () {
+              setState(() {
+                stateOnlyText = ButtonStatus.idle;
+              });
+            });
+          });
         } else {
           setState(() {
             stateOnlyText = ButtonStatus.fail;
@@ -69,7 +67,6 @@ class _SignInScreenState extends State<SignInScreen> {
           });
         }
       });
-
     }
   }
 

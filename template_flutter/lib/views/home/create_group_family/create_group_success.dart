@@ -34,6 +34,7 @@ class _CreateGroupSuccessState extends State<CreateGroupSuccess> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(
+                    settings: RouteSettings(name: "/main"),
                     builder: (context) => MainScreen(),
                   ),
                 );

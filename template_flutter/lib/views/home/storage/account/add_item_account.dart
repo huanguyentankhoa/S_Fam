@@ -23,7 +23,7 @@ class _AddItemAccountState extends State<AddItemAccount> {
   void onPressedCustomButton() async {
     Map<String, dynamic> data = {
       "name": nameItem.text,
-      "detail": note.text
+      "detail": note.text,
     };
     if (stateOnlyText == ButtonStatus.idle) {
       setState(() {
@@ -44,6 +44,7 @@ class _AddItemAccountState extends State<AddItemAccount> {
                       stateOnlyText = ButtonStatus.idle;
                     });
                 });
+                Navigator.pop(context);
               },
               fail: () {
                 setState(() {

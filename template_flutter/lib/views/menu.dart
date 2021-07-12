@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:s_fam/common/config.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
@@ -9,6 +10,9 @@ import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/views/map/follow_position.dart';
 import 'package:s_fam/views/person/person_screen.dart';
 import 'package:s_fam/views/welcome_screen.dart';
+
+import 'home/storage/account/create_pin_code.dart';
+import 'home/storage/account/pin_code _account.dart';
 
 class Menu extends StatefulWidget {
   const Menu({Key? key}) : super(key: key);
@@ -62,8 +66,8 @@ class _MenuState extends State<Menu> {
                         child: ClipOval(
                           child: user.userCurrentLogin.avatarUrl != null &&
                                   user.userCurrentLogin.avatarUrl != ""
-                              ? Tools().getImage(
-                                  "https://testfam.herokuapp.com/api/v1/image/${user.userCurrentLogin.email}/avt/download")
+                              ? Tools().getImage("${serverConfig["url"]}" +
+                                  "api/v1/image/download?path=${user.userCurrentLogin.email}&name=${user.userCurrentLogin.avatarUrl}")
                               : Image.asset(
                                   "assets/icons/logo.png",
                                   fit: BoxFit.contain,
@@ -177,7 +181,9 @@ class _MenuState extends State<Menu> {
               ),
               InkWell(
                 onTap: () {
-                  app.tabMainSelected = 3;
+                  app.tabMainSelected = 2;
+                  app.tabStorageSelected = 0;
+                  app.fromMenu = true;
                 },
                 child: Container(
                   height: 48,
@@ -218,7 +224,7 @@ class _MenuState extends State<Menu> {
               ),
               InkWell(
                 onTap: () {
-                  app.tabMainSelected = 4;
+                  app.tabMainSelected = 3;
                 },
                 child: Container(
                   height: 48,
@@ -258,8 +264,27 @@ class _MenuState extends State<Menu> {
                 height: 25,
               ),
               InkWell(
-                onTap: () {
-                  app.tabMainSelected = 3;
+                onTap: () async {
+                  if (user.userCurrentLogin.pinCode != null) {
+                    var result = await showDialog(
+                      context: context,
+                      builder: (context) => PinCodeAccount(),
+                    );
+                    if (result != null && result) app.tabMainSelected = 2;
+                    app.tabStorageSelected = 1;
+                    app.fromMenu = true;
+                  } else {
+                    await showDialog(
+                      context: context,
+                      builder: (context) => CreatePinCode(
+                        success: (pinCode) {
+                          app.tabMainSelected = 2;
+                          app.tabStorageSelected = 1;
+                          app.fromMenu = true;
+                        },
+                      ),
+                    );
+                  }
                 },
                 child: Container(
                   height: 48,
@@ -300,7 +325,9 @@ class _MenuState extends State<Menu> {
               ),
               InkWell(
                 onTap: () {
-                  app.tabMainSelected = 3;
+                  app.tabMainSelected = 2;
+                  app.tabStorageSelected = 2;
+                  app.fromMenu = true;
                 },
                 child: Container(
                   height: 48,

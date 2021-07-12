@@ -20,25 +20,33 @@ class _HomeItemsState extends State<HomeItems> {
   late UserProvider user;
   String query = '';
   bool isSearch = false;
-  List<StorageItem> listItems = [];
+
   List<StorageItem> listSearch = [];
   List<StorageItem> allItems = [];
-  late Timer _timer;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (mounted)
-        Provider.of<UserProvider>(context, listen: false).getListStorageItem(
-            success: (value) {
-          setState(() {
-            allItems = value;
-            listItems = value;
-          });
-        });
+    // _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    //   if (mounted)
+    //     Provider.of<UserProvider>(context, listen: false).getListStorageItem(
+    //         success: (value) {
+    //       setState(() {
+    //         allItems = value;
+    //       });
+    //     });
+    // });
+  }
+
+  Future<List<StorageItem>> getData() async {
+    List<StorageItem> listItems = [];
+    listItems = (await Provider.of<UserProvider>(context, listen: false)
+        .getListStorageItem(success: (value) {}))!;
+    setState(() {
+      allItems = listItems;
     });
+    return listItems;
   }
 
   searchItem(String query) {
@@ -52,22 +60,20 @@ class _HomeItemsState extends State<HomeItems> {
       return nameLower.contains(searchLower);
     }).toList();
 
-    if(query=='')
+    if (query == '')
       setState(() {
         this.query = query;
-        listItems = items;
         isSearch = false;
       });
     else
-    setState(() {
-      this.query = query;
-      listSearch = items;
-    });
+      setState(() {
+        this.query = query;
+        listSearch = items;
+      });
   }
 
   @override
   void dispose() {
-    _timer.cancel();
     super.dispose();
   }
 
@@ -91,7 +97,7 @@ class _HomeItemsState extends State<HomeItems> {
               child: SearchWidget(
                   text: query, onChanged: searchItem, hintText: "Tìm kiếm"),
             ),
-            if (isSearch&&listSearch.isEmpty)
+            if (isSearch && listSearch.isEmpty)
               Container(
                 margin: EdgeInsets.only(top: 50),
                 child: Text(
@@ -99,13 +105,12 @@ class _HomeItemsState extends State<HomeItems> {
                   style: kSubText16BlackBold,
                 ),
               ),
-            if (isSearch&&listSearch.isNotEmpty)
+            if (isSearch && listSearch.isNotEmpty)
               Expanded(
                   child: ListView.separated(
                       itemBuilder: (_, index) {
                         return HomeItem(
-                          nameItem: listSearch[index].name,
-                          note: listSearch[index].detail,
+                          item: listSearch[index],
                         );
                       },
                       separatorBuilder: (context, index) {
@@ -118,33 +123,65 @@ class _HomeItemsState extends State<HomeItems> {
                         );
                       },
                       itemCount: listSearch.length)),
-            if (!isSearch && listItems.isEmpty)
-              Container(
-                margin: EdgeInsets.only(top: 50),
-                child: Text(
-                  "Không có dữ liệu",
-                  style: kSubText16BlackBold,
-                ),
-              ),
-            if (!isSearch &&listItems.isNotEmpty)
+            if (!isSearch)
               Expanded(
-                  child: ListView.separated(
-                      itemBuilder: (_, index) {
-                        return HomeItem(
-                          nameItem: listItems[index].name,
-                          note: listItems[index].detail,
-                        );
-                      },
-                      separatorBuilder: (context, index) {
+                child: FutureBuilder(
+                    future: user.getListStorageItem(success: (value){allItems = value;}),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<StorageItem>?> snapshot) {
+                      if (snapshot.hasData)
+                        return ListView.separated(
+                            itemBuilder: (_, index) {
+                              return HomeItem(item: snapshot.data![index]);
+                            },
+                            separatorBuilder: (context, index) {
+                              return Container(
+                                margin: EdgeInsets.only(top: 8, bottom: 16),
+                                child: Divider(
+                                  height: 1,
+                                  color: textSecondary,
+                                ),
+                              );
+                            },
+                            itemCount: snapshot.data!.length);
+                      else if (snapshot.hasError)
                         return Container(
-                          margin: EdgeInsets.only(top: 8, bottom: 16),
-                          child: Divider(
-                            height: 1,
-                            color: textSecondary,
+                          margin: EdgeInsets.only(top: 50),
+                          child: Text(
+                            "Không có dữ liệu",
+                            style: kSubText16BlackBold,
                           ),
                         );
-                      },
-                      itemCount: listItems.length)),
+                      else
+                        return Center(child: CircularProgressIndicator());
+                    }),
+              ),
+            // if (!isSearch && listItems.isEmpty)
+            //   Container(
+            //     margin: EdgeInsets.only(top: 50),
+            //     child: Text(
+            //       "Không có dữ liệu",
+            //       style: kSubText16BlackBold,
+            //     ),
+            //   ),
+            // if (!isSearch &&listItems.isNotEmpty)
+            //   Expanded(
+            //       child: ListView.separated(
+            //           itemBuilder: (_, index) {
+            //             return HomeItem(
+            //            item: listItems[index]
+            //             );
+            //           },
+            //           separatorBuilder: (context, index) {
+            //             return Container(
+            //               margin: EdgeInsets.only(top: 8, bottom: 16),
+            //               child: Divider(
+            //                 height: 1,
+            //                 color: textSecondary,
+            //               ),
+            //             );
+            //           },
+            //           itemCount: listItems.length)),
           ],
         ),
       ),

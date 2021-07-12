@@ -47,12 +47,12 @@ class _SelectDateTimeState extends State<SelectDateTime> {
             children: [
               _appBarBuild(),
               Container(
-                height: 360,
                 padding: EdgeInsets.only(left: 20, right: 20),
                 child: CalendarCarousel<Event>(
                   onDayPressed: (DateTime date, List<Event> events) {
                     this.setState(() => _currentDate = date);
                   },
+                  customGridViewPhysics: NeverScrollableScrollPhysics(),
                   headerMargin: EdgeInsets.zero,
                   selectedDayButtonColor: primaryMain,
                   selectedDayBorderColor: primaryMain,
@@ -66,7 +66,8 @@ class _SelectDateTimeState extends State<SelectDateTime> {
                   markedDateIconBorderColor: textSecondary,
                   thisMonthDayBorderColor: textSecondary,
                   weekFormat: false,
-                  height: 420.0,
+                  weekdayTextStyle: kText14Black,
+                  height: 380.0,
                   selectedDateTime: _currentDate,
                   daysHaveCircularBorder: false,
                 ),

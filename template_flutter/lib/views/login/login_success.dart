@@ -4,6 +4,7 @@ import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/views/home/create_group_family/create_family.dart';
 import 'package:s_fam/views/home/join_group/join_group.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginSuccess extends StatefulWidget {
   const LoginSuccess({Key? key}) : super(key: key);
@@ -68,7 +69,9 @@ class _LoginSuccessState extends State<LoginSuccess> {
                       children: [
                         InkWell(
                           onTap: () async {
-                            var result = await showDialog(
+                            final prefs = await SharedPreferences.getInstance();
+                            prefs.setBool("EnablePosition", false);
+                             await showDialog(
                               context: context,
                               builder: (context) => CreateFamily(),
                             );

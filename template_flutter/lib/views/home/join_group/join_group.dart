@@ -1,3 +1,4 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_template/flutter_template.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class JoinGroup extends StatefulWidget {
   Function? onBack;
-   JoinGroup({Key? key,this.onBack}) : super(key: key);
+
+  JoinGroup({Key? key, this.onBack}) : super(key: key);
 
   @override
   _JoinGroupState createState() => _JoinGroupState();
@@ -18,12 +20,14 @@ class JoinGroup extends StatefulWidget {
 
 class _JoinGroupState extends State<JoinGroup> {
   TextEditingController _codeFamily = TextEditingController();
+  TextEditingController _codeFamilyJoined = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   late UserProvider _user;
 
   ButtonStatus stateOnlyText = ButtonStatus.idle;
 
+  String? nameGroupJoined;
 
   void onPressedCustomButton() async {
     if (stateOnlyText == ButtonStatus.idle) {
@@ -38,6 +42,7 @@ class _JoinGroupState extends State<JoinGroup> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
+                    settings: RouteSettings(name: "/main"),
                     builder: (context) => MainScreen(),
                   ),
                 );
@@ -48,8 +53,7 @@ class _JoinGroupState extends State<JoinGroup> {
                   stateOnlyText = ButtonStatus.idle;
                 });
               },
-              fail: (statusCode)
-              {
+              fail: (statusCode) {
                 setState(() {
                   stateOnlyText = ButtonStatus.fail;
                 });
@@ -77,6 +81,18 @@ class _JoinGroupState extends State<JoinGroup> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    loadInit();
+  }
+
+  loadInit() async {
+    await Provider.of<UserProvider>(context, listen: false)
+        .getDataMyGroup()
+        .then((value) {
+      setState(() {
+        nameGroupJoined = value!.name;
+        _codeFamilyJoined.text = value.key;
+      });
+    });
   }
 
   @override
@@ -104,11 +120,12 @@ class _JoinGroupState extends State<JoinGroup> {
             ),
             Center(
               child: Container(
-                height: 130,
+                height: 300,
                 width: MediaQuery.of(context).size.width - 20,
                 color: Colors.white,
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
                       height: 20,
@@ -130,6 +147,57 @@ class _JoinGroupState extends State<JoinGroup> {
                       },
                       controller: _codeFamily,
                     ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Divider(
+                      height: 2,
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        "Nhóm đã tham gia",
+                        style: kText12blackBold,
+                      ),
+                    ),
+
+                    if (nameGroupJoined != null)
+                      TextInput(
+                        height: 48,
+                        labelText: nameGroupJoined!,
+                        controller: _codeFamilyJoined,
+                        enable: true,
+                        validator: (value) {
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.only(left: 10, top: 10),
+                            suffixIcon: Container(
+                              width: 20,
+                              padding: EdgeInsets.only(top: 10),
+                              alignment: Alignment.center,
+                              child: InkWell(
+                                onTap: () {
+                                  FlutterClipboard.copy(_codeFamilyJoined.text).then((value) {
+                                    const snackBar = SnackBar(
+                                      content: Text("Đã sao chép mã gia đình"),
+                                      duration: Duration(seconds: 3),
+                                    );
+                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                  });
+                                },
+                                child: Icon(
+                                  Icons.copy,
+                                  size: 21,
+                                  color: Color(0xFF272729),
+                                ),
+                              ),
+                            )),
+                      ),
                   ],
                 ),
               ),

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:geolocator/geolocator.dart';
 
 //import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:s_fam/common/constants/general.dart';
@@ -26,7 +27,8 @@ class UserProvider with ChangeNotifier {
 
   String token = "";
   String codeFamily = "";
-  Group? groupOfUser;
+
+  //Group? groupOfUser;
   List<Member> listMemberOfGroup = [];
   List<EventModel> listEvent = [];
   List<Work> listWork = [];
@@ -86,6 +88,7 @@ class UserProvider with ChangeNotifier {
       await _services.getMemberByEmail(_email, success: (_member) {
         _userCurrentLogin = _member;
         notifyListeners();
+        print("allo");
       }, fail: (statusCode) {
         loggedIn = false;
         saveLoginState(loggedIn);
@@ -98,14 +101,11 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future<Group?> getDataMyGroup() async {
-    try {
-      groupOfUser = await _services.getDataMyGroup(_userCurrentLogin.email!);
-      notifyListeners();
-      return groupOfUser;
-    } catch (e) {
-      print(e);
-    }
+  Future<Group?> getDataMyGroup({email}) async {
+    var groupOfUser =
+        await _services.getDataMyGroup(email ?? _userCurrentLogin.email!);
+    notifyListeners();
+    return groupOfUser;
   }
 
   Future<void> checkEmail(email,
@@ -122,6 +122,51 @@ class UserProvider with ChangeNotifier {
   Future<bool> confirmEmail(token) async {
     try {
       return await _services.confirmEmail(token);
+    } catch (e) {
+      //print(e);
+    }
+    return false;
+  }
+
+  Future<void> checkEmailForgot(email,
+      {Function(String)? success, Function? fail}) async {
+    try {
+      await _services.checkEmailForgot(email, success: (code) {
+        success!(code);
+      }, fail: fail);
+    } catch (e) {
+      //print(e);
+    }
+  }
+
+  Future<bool> confirmEmailForgot(token) async {
+    try {
+      return await _services.confirmEmailForgot(token);
+    } catch (e) {
+      //print(e);
+    }
+    return false;
+  }
+
+  Future<bool> resetPassword(email, pass) async {
+    try {
+      return await _services.resetPassword(email: email, pass: pass);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> editInfoUser({
+    required email,
+    required dob,
+    required fullName,
+  }) async {
+    try {
+      return await _services.editInfoUser(
+        email: email,
+        dob: dob,
+        fullName: fullName,
+      );
     } catch (e) {
       //print(e);
     }
@@ -190,11 +235,21 @@ class UserProvider with ChangeNotifier {
     prefs.setString("account", convert.jsonEncode(data));
   }
 
-  void logout() {
+  Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
     loggedIn = false;
     joinedGroup = false;
     saveLoginState(loggedIn);
     saveCodeFamily(joinedGroup);
+    var position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    var _group = await getDataMyGroup(email: userCurrentLogin.email);
+
+    prefs.setBool("${_group!.idGroup}_EnablePosition", false);
+    sendLocation(
+        latitude: position.latitude,
+        longitude: position.longitude,
+        isEnablePosition: false);
     notifyListeners();
   }
 
@@ -234,12 +289,17 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> getListEvent() async {
-    try {
-      listEvent =
-          (await _services.getListEvent(email: _userCurrentLogin.email))!;
-      notifyListeners();
-    } catch (e) {}
+  Future<List<EventModel>?> getListEvent() async {
+    listEvent = (await _services.getListEvent(email: _userCurrentLogin.email))!;
+    listEvent.sort((a, b) => b.id.toString().compareTo(a.id.toString()));
+    notifyListeners();
+    return listEvent;
+  }
+
+  Future<List<EventModel>?> getListEventByEmail(email) async {
+    List<EventModel> e = (await _services.getListEvent(email: email))!;
+    e.sort((a, b) => b.id.toString().compareTo(a.id.toString()));
+    return e;
   }
 
   Future<void> createEvent(
@@ -280,14 +340,18 @@ class UserProvider with ChangeNotifier {
     return _event;
   }
 
-  Future<void> getListWork() async {
-    try {
-      listWork = (await _services.getListWork(email: userCurrentLogin.email))!;
-      listWork.sort((a, b) => b.id.toString().compareTo(a.id.toString()));
-      notifyListeners();
-    } catch (e) {
-      //print(e);
-    }
+  Future<List<Work>?> getListWork() async {
+    listWork = (await _services.getListWork(email: userCurrentLogin.email))!;
+    listWork.sort((a, b) => b.id.toString().compareTo(a.id.toString()));
+    notifyListeners();
+    return listWork;
+  }
+
+  Future<List<Work>?> getListWorkByEmail(email) async {
+    List<Work> _w = (await _services.getListWork(email: email))!;
+    _w.sort((a, b) => b.id.toString().compareTo(a.id.toString()));
+    notifyListeners();
+    return _w;
   }
 
   Future<void> createWork(
@@ -338,12 +402,13 @@ class UserProvider with ChangeNotifier {
     return _works;
   }
 
-  Future<void> getListStorageItem({Function? success}) async {
+  Future<List<StorageItem>?> getListStorageItem({Function? success}) async {
     try {
       listStorageItem =
           (await _services.getListStorageItem(email: userCurrentLogin.email))!;
       success!(listStorageItem);
       notifyListeners();
+      return listStorageItem;
     } catch (e) {}
   }
 
@@ -359,12 +424,14 @@ class UserProvider with ChangeNotifier {
   Future<void> createListStorageItem(
       {required Map<String, dynamic> data,
       required email,
-      Function? success,
+      Function(Map<String, dynamic>)? success,
       Function? fail}) async {
     await _services.createStorageItem(
       email: email,
       data: data,
-      success: success,
+      success: (item) {
+        success!(item);
+      },
       fail: fail,
     );
     notifyListeners();
@@ -384,11 +451,12 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getListAlbums() async {
+  Future<void> getListAlbums({Function? success}) async {
     try {
       listAlbum =
           (await _services.getListAlbum(email: userCurrentLogin.email))!;
       notifyListeners();
+      success!(listAlbum);
     } catch (e) {}
   }
 
@@ -429,11 +497,25 @@ class UserProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> uploadImageItem(
+      {required String idItem,
+      required String imagePath,
+      Function? success,
+      Function? fail}) async {
+    await _services.uploadImageItem(
+      idItem: idItem,
+      imagePath: imagePath,
+      success: success,
+      fail: fail,
+    );
+    notifyListeners();
+  }
+
   Future<void> uploadAvtUser(
-      {required FormData data, Function? success, Function? fail}) async {
+      {required String imagePath, Function? success, Function? fail}) async {
     await _services.uploadAvtUser(
       email: userCurrentLogin.email!,
-      data: data,
+      imagePath: imagePath,
       success: success,
       fail: fail,
     );
@@ -450,12 +532,16 @@ class UserProvider with ChangeNotifier {
     }
   }
 
-  Future<void> sendLocation({required latitude, required longitude}) async {
+  Future<void> sendLocation(
+      {required latitude,
+      required longitude,
+      required isEnablePosition}) async {
     try {
       await _services.sendLocation(
           email: _userCurrentLogin.email!,
           latitude: latitude,
-          longitude: longitude);
+          longitude: longitude,
+          isEnablePosition: isEnablePosition);
     } catch (e) {
       //print(e);
     }
@@ -478,29 +564,11 @@ class UserProvider with ChangeNotifier {
       //print(e);
     }
   }
-// void _handleSendNotification() async {
-//   var deviceState = await OneSignal.shared.getDeviceState();
-//
-//   if (deviceState == null || deviceState.userId == null)
-//     return;
-//
-//   var playerId = deviceState.userId!;
-//
-//   var imgUrlString =
-//       "http://cdn1-www.dogtime.com/assets/uploads/gallery/30-impossibly-cute-puppies/impossibly-cute-puppy-2.jpg";
-//
-//   var notification = OSCreateNotification(
-//       playerIds: [playerId],
-//       content: "this is a test from OneSignal's Flutter SDK",
-//       heading: "Test Notification",
-//       iosAttachments: {"id1": imgUrlString},
-//       bigPicture: imgUrlString,
-//       buttons: [
-//         OSActionButton(text: "test1", id: "id1"),
-//         OSActionButton(text: "test2", id: "id2")
-//       ]);
-//
-//   var response = await OneSignal.shared.postNotification(notification);
-//
-// }
+
+  Future<bool> createPinCode({required pinCode}) async {
+    var result = await _services.createPinCode(
+        email: _userCurrentLogin.email, pinCode: pinCode);
+    if (result) getUserInfo(_userCurrentLogin.email);
+    return result;
+  }
 }

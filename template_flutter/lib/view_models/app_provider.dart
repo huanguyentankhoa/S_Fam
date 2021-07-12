@@ -8,9 +8,7 @@ import 'package:s_fam/services/services_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:s_fam/common/constants/general.dart';
 
-
-
-class AppProvider extends ChangeNotifier{
+class AppProvider extends ChangeNotifier {
   String locale = kAdvanceConfig['DefaultLanguage'].toString();
   bool darkTheme = false;
   bool isInit = false;
@@ -18,6 +16,22 @@ class AppProvider extends ChangeNotifier{
   late File _image;
 
   int _tabMainSelected = 0;
+  int _tabStorageSelected = 0;
+  bool _fromMenu = false;
+
+  bool get fromMenu => _fromMenu;
+
+  set fromMenu(bool value) {
+    _fromMenu = value;
+    notifyListeners();
+  }
+
+  int get tabStorageSelected => _tabStorageSelected;
+
+  set tabStorageSelected(int value) {
+    _tabStorageSelected = value;
+    notifyListeners();
+  }
 
   int get tabMainSelected => _tabMainSelected;
 
@@ -31,16 +45,12 @@ class AppProvider extends ChangeNotifier{
   AppModel() {
     getConfig();
   }
-  File get image => _image;
 
-  set image(File value) {
-    _image = value;
-    notifyListeners();
-  }
   Future<bool> getConfig() async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      locale = prefs.getString("language") ?? kAdvanceConfig['DefaultLanguage'].toString();
+      locale = prefs.getString("language") ??
+          kAdvanceConfig['DefaultLanguage'].toString();
       darkTheme = prefs.getBool("darkTheme") ?? false;
       isInit = true;
       return true;
@@ -48,49 +58,50 @@ class AppProvider extends ChangeNotifier{
       return false;
     }
   }
+
   Future<bool> changeLanguage(String country, BuildContext context) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       locale = country;
       await prefs.setString("language", country);
 
-     notifyListeners();
+      notifyListeners();
       return true;
     } catch (err) {
       return false;
     }
   }
+
   Future<void> updateTheme(bool theme) async {
     try {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       darkTheme = theme;
       await prefs.setBool("darkTheme", theme);
       notifyListeners();
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 
   final picker = ImagePicker();
+
   _imgFromCamera(Function success) async {
-    final pickedFile = await picker.getImage(
-        source: ImageSource.camera, imageQuality: 50
-    );
-
-    _image = File(pickedFile!.path);
-    success(_image);
+    PickedFile pickedFile =
+        (await picker.getImage(source: ImageSource.camera, imageQuality: 50))!;
+    success(pickedFile.path);
     notifyListeners();
   }
 
-  _imgFromGallery(Function success) async {
-    final pickedFile = await picker.getImage(
-        source: ImageSource.gallery, imageQuality: 50
-    );
-
-    _image = File(pickedFile!.path);
-    success(_image);
-    notifyListeners();
-  }
-  void showPicker({required BuildContext context, required Function success}) {
+  // _imgFromGallery(Function success) async {
+  //   final pickedFile = await picker.getImage(
+  //       source: ImageSource.gallery, imageQuality: 50
+  //   ).catchError((onError){
+  //     print(onError);
+  //   });
+  //   print(pickedFile);
+  //   // _image = File(pickedFile!.path);
+  //   // success(_image);
+  //   notifyListeners();
+  // }
+  void showPicker({required BuildContext context, required Function(List<Asset>) successGallery,required Function successCamera}) {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) {
@@ -102,14 +113,25 @@ class AppProvider extends ChangeNotifier{
                       leading: new Icon(Icons.photo_library),
                       title: new Text('Chọn từ thư viện'),
                       onTap: () {
-                        _imgFromGallery(success);
+                        _multiImgFromGallery(
+                            numberImageMaxUpload: 1,
+                            success: (result) async {
+                              if (result.isNotEmpty) {
+                                successGallery(result);
+                                // await FlutterAbsolutePath.getAbsolutePath(
+                                //         result.first.identifier!)
+                                //     .then((value) async {
+                                //
+                                // });
+                              }
+                            });
                         Navigator.of(context).pop();
                       }),
                   new ListTile(
                     leading: new Icon(Icons.photo_camera),
-                    title: new Text('chụp ảnh mới'),
+                    title: new Text('Chụp ảnh mới'),
                     onTap: () {
-                      _imgFromCamera(success);
+                      _imgFromCamera(successCamera);
                       Navigator.of(context).pop();
                     },
                   ),
@@ -117,8 +139,7 @@ class AppProvider extends ChangeNotifier{
               ),
             ),
           );
-        }
-    );
+        });
   }
 
   _multiImgFromGallery({
@@ -128,22 +149,24 @@ class AppProvider extends ChangeNotifier{
     List<Asset> resultList = <Asset>[];
     try {
       resultList = await MultiImagePicker.pickImages(
-        maxImages: numberImageMaxUpload,
-        enableCamera: false,
-        selectedAssets: resultList,
-      );
+          maxImages: numberImageMaxUpload,
+          enableCamera: false,
+          selectedAssets: resultList,
+          materialOptions: MaterialOptions(
+              autoCloseOnSelectionLimit: true));
+      success!(resultList);
     } on Exception catch (e) {
-       //printLog(e);
+      printLog(e);
     }
-    success!(resultList);
+
     notifyListeners();
   }
 
   void showMultiPicker(
       {required BuildContext context,
-        required Function(List<Asset>) successFromGallery,
-        required Function(List<String>) successFromCamera,
-        required numberImageMaxUpload}) {
+      required Function(List<Asset>) successFromGallery,
+      required Function(List<String>) successFromCamera,
+      required numberImageMaxUpload}) {
     showModalBottomSheet(
         context: context,
         builder: (BuildContext bc) {
@@ -166,5 +189,4 @@ class AppProvider extends ChangeNotifier{
           );
         });
   }
-
 }

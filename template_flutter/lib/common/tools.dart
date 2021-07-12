@@ -63,7 +63,9 @@ class Tools {
    }
   }
   Widget? getImage(String link, {BoxFit? fit}) {
+
     if (link.contains('http://') || link.contains('https://')) {
+
       return Image.network(
         link,
         fit: fit,
@@ -74,7 +76,6 @@ class Tools {
       "assets/images/$link",
       fit: fit,
     );
-
     return null;
   }
 

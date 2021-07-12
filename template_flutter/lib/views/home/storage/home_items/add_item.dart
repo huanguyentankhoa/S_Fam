@@ -1,9 +1,12 @@
 import 'dart:io';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_absolute_path/flutter_absolute_path.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:flutter_template/flutter_template.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
@@ -24,19 +27,31 @@ class _AddItemState extends State<AddItem> {
   TextEditingController note = TextEditingController();
   ButtonStatus stateOnlyText = ButtonStatus.idle;
   late UserProvider user;
-  File? _image;
+  String? _imagePath;
 
-  getImageSuccess(File? image) {
-    if (image != null) {
+  getImageCameraSuccess(String? path) {
+    if (path != null) {
       setState(() {
-        _image = image;
+        _imagePath = path;
       });
     }
   }
+
+  getImageGallerySuccess(List<Asset> resultList) async {
+    await FlutterAbsolutePath.getAbsolutePath(resultList.first.identifier!)
+        .then((value) async {
+      setState(() {
+        _imagePath = value;
+      });
+    });
+  }
+
+  FocusNode focusNode = FocusNode();
+
   void onPressedCustomButton() async {
     Map<String, dynamic> data = {
       "name": nameItem.text,
-      "detail": note.text
+      "detail": note.text,
     };
     if (stateOnlyText == ButtonStatus.idle) {
       setState(() {
@@ -47,16 +62,23 @@ class _AddItemState extends State<AddItem> {
           user.createListStorageItem(
               data: data,
               email: user.userCurrentLogin.email,
-              success: () {
+              success: (item) {
+                print(item);
                 setState(() {
                   stateOnlyText = ButtonStatus.success;
                 });
                 Future.delayed(Duration(seconds: 2), () {
-                  if(mounted)
+                  if (mounted)
                     setState(() {
                       stateOnlyText = ButtonStatus.idle;
                     });
                 });
+                user.uploadImageItem(
+                    idItem: item["id"].toString(),
+                    imagePath: _imagePath!,
+                    success: () {},
+                    fail: () {});
+                Navigator.pop(context);
               },
               fail: () {
                 setState(() {
@@ -81,6 +103,7 @@ class _AddItemState extends State<AddItem> {
       });
     }
   }
+
   @override
   Widget build(BuildContext context) {
     AppProvider _app = Provider.of<AppProvider>(context);
@@ -124,7 +147,10 @@ class _AddItemState extends State<AddItem> {
                 ),
                 InkWell(
                   onTap: () {
-                    _app.showPicker(context: context, success: getImageSuccess);
+                    _app.showPicker(
+                        context: context,
+                        successCamera: getImageCameraSuccess,
+                        successGallery: (result) {});
                   },
                   child: Container(
                     margin: EdgeInsets.symmetric(horizontal: 20),
@@ -154,17 +180,19 @@ class _AddItemState extends State<AddItem> {
                   margin: EdgeInsets.symmetric(horizontal: 20),
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
-                      border: _image != null
+                      border: _imagePath != null
                           ? null
                           : Border.all(color: primaryMain)),
-                  child: _image != null
-                      ? Image.file(_image!)
+                  child: _imagePath != null
+                      ? Image.file(File(_imagePath!))
                       : InkWell(
                           onTap: () {
                             _app.showPicker(
-                                context: context, success: getImageSuccess,
-
-                            );
+                                context: context,
+                                successCamera: getImageCameraSuccess,
+                                successGallery: (result) {
+                                  getImageGallerySuccess(result);
+                                });
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,

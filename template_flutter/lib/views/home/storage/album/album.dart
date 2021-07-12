@@ -34,7 +34,7 @@ class _AlbumScreenState extends State<AlbumScreen> {
     super.initState();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (mounted)
-        Provider.of<UserProvider>(context, listen: false).getListStorageItem(
+        Provider.of<UserProvider>(context, listen: false).getListAlbums(
             success: (value) {
           setState(() {
             allItems = value;
@@ -118,8 +118,7 @@ class _AlbumScreenState extends State<AlbumScreen> {
                               );
                             },
                             child: AlbumItem(
-                              nameItem: listSearch[index].name,
-                              numberImage: listSearch[index].listImage.length,
+                            album: listSearch[index],
                             ),
                           );
                         },
@@ -156,8 +155,7 @@ class _AlbumScreenState extends State<AlbumScreen> {
                               );
                             },
                             child: AlbumItem(
-                              nameItem: listItems[index].name,
-                              numberImage: listItems[index].listImage.length,
+                            album: listItems[index],
                             ),
                           );
                         },

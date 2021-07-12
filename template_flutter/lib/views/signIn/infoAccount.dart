@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
@@ -30,7 +29,6 @@ class _InfoAccountState extends State<InfoAccount> {
     "Nữ",
   ];
 
-  late Member member;
   @override
   void initState() {
     // TODO: implement initState
@@ -111,7 +109,6 @@ class _InfoAccountState extends State<InfoAccount> {
                       onChanged: (value) {
                         setState(() {
                           gender = value!;
-                          member.gender = value;
                         });
                       },
                       items: listGender

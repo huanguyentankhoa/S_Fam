@@ -7,6 +7,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/models/group.dart';
 import 'package:s_fam/models/member.dart';
 import 'package:s_fam/view_models/notification/notification_handler.dart';
 import 'package:s_fam/view_models/user_provider.dart';
@@ -22,14 +23,13 @@ class FollowPosition extends StatefulWidget {
   _FollowPositionState createState() => _FollowPositionState();
 }
 
-class _FollowPositionState extends State<FollowPosition>
-{
+class _FollowPositionState extends State<FollowPosition> {
   var _position = LatLng(10.8468936, 106.6408852);
   late GoogleMapController _controller;
   GlobalKey<ScaffoldState> _key = GlobalKey();
   late Timer _timer;
   List<Marker> listMarkers = [];
-
+  Group? _group;
   static CameraPosition _kGoogle = CameraPosition(
     target: LatLng(10.8468936, 106.6408852),
     zoom: 14.4746,
@@ -45,15 +45,19 @@ class _FollowPositionState extends State<FollowPosition>
     final CameraPosition _kCurrentPosition = CameraPosition(
         target: LatLng(position.latitude, position.longitude),
         zoom: 19.151926040649414);
-    setState(() {
-      _kGoogle = _kCurrentPosition;
-    });
-     controller.animateCamera(CameraUpdate.newCameraPosition(_kCurrentPosition));
+    if (mounted) {
+      setState(() {
+        _kGoogle = _kCurrentPosition;
+      });
+    }
+    controller.animateCamera(CameraUpdate.newCameraPosition(_kCurrentPosition));
     setState(() {
       _position = LatLng(position.latitude, position.longitude);
     });
     await Provider.of<UserProvider>(context, listen: false).sendLocation(
-        latitude: _position.latitude, longitude: _position.longitude);
+        latitude: _position.latitude,
+        longitude: _position.longitude,
+        isEnablePosition: _enablePosition);
   }
 
   _moveCurrentPosition() async {
@@ -69,11 +73,17 @@ class _FollowPositionState extends State<FollowPosition>
       _position = LatLng(position.latitude, position.longitude);
     });
     await Provider.of<UserProvider>(context, listen: false).sendLocation(
-        latitude: _position.latitude, longitude: _position.longitude);
+      latitude: _position.latitude,
+      longitude: _position.longitude,
+      isEnablePosition: _enablePosition,
+    );
   }
+
   loadInit() async {
+    _group = await Provider.of<UserProvider>(context, listen: false)
+        .getDataMyGroup();
     final prefs = await SharedPreferences.getInstance();
-    var result = prefs.getBool("EnablePosition");
+    var result = prefs.getBool("${_group!.idGroup}_EnablePosition");
     if (result != null) {
       setState(() {
         _enablePosition = result;
@@ -83,28 +93,31 @@ class _FollowPositionState extends State<FollowPosition>
         _enablePosition = false;
       });
     }
-    membersOfGroup.forEach((m) async {
+    _group!.listMembers.forEach((m) async {
       Map<String, dynamic>? location =
           await Provider.of<UserProvider>(context, listen: false)
               .getLocation(email: m.email);
       if (location != null) {
         double lat = double.parse(location["latitude"].toString());
         double long = double.parse(location["longitude"].toString());
-        listMarkers.add(
-          Marker(
-            markerId: MarkerId(m.id.toString()),
-            position: LatLng(lat, long),
-            anchor: Offset(0.2, 0.2),
-              icon: await BitmapDescriptor.fromAssetImage(
-                  createLocalImageConfiguration(context),
-                  "assets/icons/location.png"),
-            infoWindow: InfoWindow(title: m.name)
-          ),
-        );
-      }
-      setState(() {});
-    });
 
+        if (location["isEnablePosition"] != null &&
+            location["isEnablePosition"] == true) {
+          listMarkers.add(
+            Marker(
+                markerId: MarkerId(m.id.toString()),
+                position: LatLng(lat, long),
+                anchor: Offset(0.2, 0.2),
+                // icon: await BitmapDescriptor.fromAssetImage(
+                //     createLocalImageConfiguration(context,size: Size(40, 40)),
+                //     "assets/icons/location.png"),
+                icon: BitmapDescriptor.defaultMarker,
+                infoWindow: InfoWindow(title: m.name)),
+          );
+        }
+      }
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -112,23 +125,18 @@ class _FollowPositionState extends State<FollowPosition>
     // TODO: implement initState
     super.initState();
 
-    setState(() {
-      membersOfGroup = Provider.of<UserProvider>(context, listen: false)
-          .groupOfUser!
-          .listMembers;
-    });
-
     loadInit();
-    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 20), (timer) {
       if (mounted) if (_enablePosition) {
         _getCurrentPosition();
       }
+      loadInit();
     });
   }
 
   saveEnablePosition(value) async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setBool("EnablePosition", value);
+    prefs.setBool("${_group!.idGroup}_EnablePosition", value);
   }
 
   @override
@@ -144,18 +152,7 @@ class _FollowPositionState extends State<FollowPosition>
       key: _key,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        leading: InkWell(
-          onTap: () {
-            _key.currentState!.openDrawer();
-          },
-          child: Container(
-            child: Icon(
-              Icons.menu,
-              color: Colors.black,
-              size: 30,
-            ),
-          ),
-        ),
+        leading: Container(),
         title: Text(
           "Vị trí",
           style: kText24BlackBold,
@@ -228,5 +225,4 @@ class _FollowPositionState extends State<FollowPosition>
       ),
     );
   }
-
 }

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_template/flutter_template.dart';
+import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/view_models/user_provider.dart';
 class PinCodeAccount extends StatefulWidget {
   const PinCodeAccount({Key? key}) : super(key: key);
 
@@ -37,6 +39,7 @@ class _PinCodeAccountState extends State<PinCodeAccount> {
   }
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<UserProvider>(context);
     return AlertDialog(
       backgroundColor: Colors.transparent,
       contentPadding: EdgeInsets.zero,
@@ -55,7 +58,9 @@ class _PinCodeAccountState extends State<PinCodeAccount> {
               padding: const EdgeInsets.symmetric(vertical: 12),
               child: Text("Vui lòng nhập mã pin để truy cập",style: kText18BlueBold,),
             ),
-
+            SizedBox(
+              height: 20,
+            ),
             PinCodeTextField(
               length: 6,
               appContext: context,
@@ -69,7 +74,7 @@ class _PinCodeAccountState extends State<PinCodeAccount> {
                 fontWeight: FontWeight.bold,
               ),
               validator: (v) {
-                if (v!.length == 4 && v != "123456") {
+                if (v!.length == 6 && v != user.userCurrentLogin.pinCode) {
                   return "";
                 } else {
                   return null;
@@ -98,7 +103,7 @@ class _PinCodeAccountState extends State<PinCodeAccount> {
                 selectedFillColor: Colors.transparent,
               ),
               onChanged: (value) {
-                if (value == "123456") {
+                if (value == user.userCurrentLogin.pinCode) {
                   setState(() {
                     isDone = true;
                     currentText = value;
@@ -113,10 +118,10 @@ class _PinCodeAccountState extends State<PinCodeAccount> {
               },
             ),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 24),
-              child: Text("Quên mật khẩu",style: kSubText14Black,),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.symmetric(vertical: 12,horizontal: 24),
+            //   child: Text("Quên mật khẩu",style: kSubText14Black,),
+            // ),
           ],
         ),
       ),

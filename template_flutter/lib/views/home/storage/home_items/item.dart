@@ -1,12 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:s_fam/common/config.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/common/tools.dart';
+import 'package:s_fam/models/storage_item.dart';
+
 class HomeItem extends StatelessWidget {
-  final idCreator;
-  final nameItem;
-  final note;
-  const HomeItem({Key? key, this.idCreator, this.nameItem, this.note}) : super(key: key);
+  final StorageItem item;
+
+  const HomeItem({Key? key, required this.item}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,17 +23,41 @@ class HomeItem extends StatelessWidget {
             child: Stack(
               alignment: Alignment.bottomLeft,
               children: [
-                Image.asset("assets/images/image2.png",fit: BoxFit.fill,),
+                Container(
+                  height: 75,
+                  width: 104,
+                  decoration: BoxDecoration(
+                    color: Colors.black45,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: item.image != null
+                        ? Tools().getImage("${serverConfig["url"]}" +
+                        "api/v1/image/download?path=item/${item.id}&name=${item.image}")
+                        : Image.asset(
+                      "assets/images/image2.png",
+                      fit: BoxFit.fill,
+                    ),
+                  )
+                ),
                 Container(
                   height: 24,
                   width: 24,
-                  margin: EdgeInsets.only(bottom: 2,left: 2),
+                  margin: EdgeInsets.only(bottom: 2, left: 2),
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: primaryMain)
+                      shape: BoxShape.circle,
+                      border: Border.all(color: primaryMain)),
+                  child: ClipOval(
+                    child: item.owner.avatarUrl != null &&
+                            item.owner.avatarUrl != ""
+                        ? Tools().getImage("${serverConfig["url"]}" +
+                            "api/v1/image/${item.owner.email}/avt/download")
+                        : Image.asset(
+                            "assets/icons/logo.png",
+                            fit: BoxFit.contain,
+                          ),
                   ),
-                  child: Image.asset("assets/images/Ellipse873.png",fit: BoxFit.fill,),
-                  
                 )
               ],
             ),
@@ -42,11 +69,19 @@ class HomeItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(nameItem, style: kText14BlackBold,),
-                SizedBox(height: 12,),
+                Text(
+                  item.name,
+                  style: kText14BlackBold,
+                ),
+                SizedBox(
+                  height: 12,
+                ),
                 Container(
                   height: 42,
-                  child: Text(note,style: kText14Black,),
+                  child: Text(
+                    item.detail,
+                    style: kText14Black,
+                  ),
                 ),
               ],
             ),

@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
 import 'package:s_fam/common/constants/general.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
+import 'package:s_fam/models/group.dart';
 import 'package:s_fam/view_models/user_provider.dart';
 import 'package:s_fam/views/login/forgot_password.dart';
 import 'package:s_fam/views/login/login_success.dart';
@@ -14,6 +15,8 @@ import 'package:s_fam/views/signIn/signIn_screen.dart';
 import 'package:s_fam/widgets/app_bar.dart';
 import 'package:s_fam/widgets/text_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../main_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -54,30 +57,39 @@ class _LoginScreenState extends State<LoginScreen> {
         stateOnlyText = ButtonStatus.loading;
       });
       Future.delayed(Duration(seconds: 2), () async {
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => LoginSuccess(),
-        //   ),
-        // );
         if (_formKey.currentState!.validate()) {
           _user.login(
               email: _account.text,
               password: _password.text,
               success: () async {
-                setState(() {
-                  stateOnlyText = ButtonStatus.success;
-                });
-                setState(() {
-                  stateOnlyText = ButtonStatus.idle;
-                });
-
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LoginSuccess(),
-                  ),
-                );
+                Group? group = await _user.getDataMyGroup(email: _account.text);
+                if (group != null && group.key.isNotEmpty) {
+                  _user.joinFamily(
+                    key: group.key,
+                    success: () {
+                    },
+                    fail: (statusCode) {
+                    },
+                  );
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          settings: RouteSettings(name: "/main"),
+                          builder: (context) => MainScreen()));
+                  setState(() {
+                    stateOnlyText = ButtonStatus.success;
+                  });
+                  setState(() {
+                    stateOnlyText = ButtonStatus.idle;
+                  });
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LoginSuccess(),
+                    ),
+                  );
+                }
               },
               fail: (error) {
                 setState(() {
@@ -88,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     stateOnlyText = ButtonStatus.idle;
                   });
                 });
-               print("Đăng nhập không thành công");
+                print("Đăng nhập không thành công");
               });
         } else {
           setState(() {
@@ -150,25 +162,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     return value!.isEmpty ? "Không được bỏ trống" : null;
                   },
                   controller: _password,
-                  suffixIcon: Container(
-                    width: 20,
-                    padding: EdgeInsets.only(top: 10),
-                    alignment: Alignment.center,
-                    child: InkWell(
-                      onTap: () {
-                        setState(() {
-                          showPass = !showPass;
-                        });
-                      },
-                      child: Icon(
-                        showPass
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: textSecondary,
-                        size: 21,
-                      ),
-                    ),
-                  ),
+                  decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.only(left: 10, top: 10),
+                      suffixIcon: Container(
+                        width: 20,
+                        padding: EdgeInsets.only(top: 10),
+                        alignment: Alignment.center,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              showPass = !showPass;
+                            });
+                          },
+                          child: Icon(
+                            showPass
+                                ? Icons.visibility_off_outlined
+                                : Icons.visibility_outlined,
+                            color: textSecondary,
+                            size: 21,
+                          ),
+                        ),
+                      )),
                 ),
                 SizedBox(
                   height: 32,
