@@ -1,3 +1,7 @@
+ext_storage
+2.12
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/git/ext_storage-98faf095ed6786a0bb0db26cb2f3966513f3f7aa/
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/git/ext_storage-98faf095ed6786a0bb0db26cb2f3966513f3f7aa/lib/
 flutter_absolute_path
 2.12
 file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/git/flutter_absolute_path-04f639c58b461ea85d6920e1deed5c67231ffd8f/
@@ -138,6 +142,10 @@ flutter_calendar_carousel
 2.12
 file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_calendar_carousel-2.0.1/
 file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_calendar_carousel-2.0.1/lib/
+flutter_downloader
+2.12
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_downloader-1.6.1/
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_downloader-1.6.1/lib/
 flutter_local_notifications
 2.12
 file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_local_notifications-5.0.0+4/
@@ -286,6 +294,14 @@ pedantic
 2.12
 file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/pedantic-1.11.0/
 file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/pedantic-1.11.0/lib/
+permission_handler
+2.12
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/permission_handler-8.1.2/
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/permission_handler-8.1.2/lib/
+permission_handler_platform_interface
+2.12
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/permission_handler_platform_interface-3.6.0/
+file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/permission_handler_platform_interface-3.6.0/lib/
 petitparser
 2.12
 file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/petitparser-4.1.0/

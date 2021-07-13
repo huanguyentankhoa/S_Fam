@@ -1,3 +1,4 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_template/flutter_template.dart';
 import 'package:provider/provider.dart';
@@ -36,6 +37,7 @@ class _SignInScreenState extends State<SignInScreen> {
             setState(() {
               stateOnlyText = ButtonStatus.idle;
             });
+            FlutterClipboard.copy(code);
             Navigator.push(
               context,
               MaterialPageRoute(

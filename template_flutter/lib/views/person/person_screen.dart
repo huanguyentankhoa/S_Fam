@@ -657,7 +657,7 @@ class _EditTextState extends State<EditText> {
                 Navigator.pop(context);
               },
               child: Text(
-                "CHỈNH SỬA",
+                "LƯU",
                 style: kText16BlueBold,
               )),
         ),

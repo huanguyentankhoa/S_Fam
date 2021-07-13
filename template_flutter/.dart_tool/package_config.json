@@ -122,6 +122,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "ext_storage",
+      "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/git/ext_storage-98faf095ed6786a0bb0db26cb2f3966513f3f7aa/",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "extended_image",
       "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/extended_image-4.1.0",
       "packageUri": "lib/",
@@ -202,6 +208,12 @@
     {
       "name": "flutter_calendar_carousel",
       "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_calendar_carousel-2.0.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_downloader",
+      "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_downloader-1.6.1",
       "packageUri": "lib/",
       "languageVersion": "2.12"
     },
@@ -458,6 +470,18 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "permission_handler",
+      "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/permission_handler-8.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "permission_handler_platform_interface",
+      "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/permission_handler_platform_interface-3.6.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "petitparser",
       "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/petitparser-4.1.0",
       "packageUri": "lib/",
@@ -674,7 +698,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-07-11T14:01:43.673887Z",
+  "generated": "2021-07-13T04:57:07.949037Z",
   "generator": "pub",
   "generatorVersion": "2.12.0"
 }

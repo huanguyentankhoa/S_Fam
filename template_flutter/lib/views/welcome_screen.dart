@@ -44,7 +44,7 @@ class WelcomeScreen extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(left: 25, right: 22),
               child: Text(
-                "Nơi giúp bạn kết nối các thành viên trong gia đình và ...",
+                "Nơi giúp bạn kết nối các thành viên trong gia đình và nhiều hơn thế nữa!",
                 textAlign: TextAlign.center,
                 style: kSubText16Black,
               ),

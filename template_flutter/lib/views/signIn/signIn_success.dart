@@ -37,13 +37,7 @@ class SignInSuccess extends StatelessWidget {
             SizedBox(
               height: 12,
             ),
-            Container(
-              child: Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                textAlign: TextAlign.center,
-                style: kSubText16Black,
-              ),
-            ),
+
             Expanded(
               child: Align(
                 alignment: AlignmentDirectional.bottomCenter,

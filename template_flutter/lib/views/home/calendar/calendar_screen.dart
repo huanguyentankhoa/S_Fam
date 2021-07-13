@@ -140,29 +140,42 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
     return Event(
       date: DateTime(dt.year, dt.month, dt.day),
       dot: Container(
-        margin: EdgeInsets.symmetric(horizontal: 1.0),
-        height: 5.0,
-        width: 5.0,
+        color: Colors.transparent,
+        padding: EdgeInsets.only(top: 2),
+        child: Center(
+          child: Text(dt.day.toString(),style: kText14Blue,),
+        ),
       ),
     );
   }
 
   getMarked(List<Work> works, List<EventModel> events) {
     _markedDateMap.clear();
+    DateTime oldDay = DateTime.parse(works.first.startDay);
     works.forEach((item) {
+
+    });
+    for(int a = 0;a<works.length;a++){
+      Work item = works[a];
       DateTime dtStart = DateTime.parse(item.startDay);
       DateTime dtEnd = DateTime.parse(item.endDay);
       List<int> repeat = getListRepeat(item.repeatType);
       if (dtStart.month == dtEnd.month) {
         for (int i = 0; i <= (dtEnd.day - dtStart.day); i++) {
           DateTime dt = DateTime(dtStart.year, dtStart.month, dtStart.day + i);
-          if (repeat.first == 0) {
-            _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-          } else {
-            if (repeat.indexOf(dt.weekday) != -1) {
-              _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+          if(a>0){
+            if(oldDay.day!=dt.day){
+              oldDay = dt;
+              if (repeat.first == 0) {
+                _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+              } else {
+                if (repeat.indexOf(dt.weekday) != -1) {
+                  _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                }
+              }
             }
           }
+
         }
       } else {
         for (int i = 0; i <= dtEnd.month - dtStart.month; i++) {
@@ -176,14 +189,18 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
                 dtStart.month + i == 12) {
               for (int j = 0; j <= (31 - dtStart.day); j++) {
                 DateTime dt =
-                    DateTime(dtStart.year, dtStart.month, dtStart.day + j);
-                if (repeat.first == 0) {
-                  _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-                } else {
-                  if (repeat.indexOf(dt.weekday) != -1) {
+                DateTime(dtStart.year, dtStart.month, dtStart.day + j);
+                if(oldDay.day!=dt.day){
+                  oldDay = dt;
+                  if (repeat.first == 0) {
                     _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                  } else {
+                    if (repeat.indexOf(dt.weekday) != -1) {
+                      _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                    }
                   }
                 }
+
               }
             } else if (dtStart.month + i == 4 ||
                 dtStart.month + i == 6 ||
@@ -191,24 +208,30 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
                 dtStart.month + i == 11) {
               for (int j = 0; j <= (30 - dtStart.day); j++) {
                 DateTime dt =
-                    DateTime(dtStart.year, dtStart.month, dtStart.day + j);
-                if (repeat.first == 0) {
-                  _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-                } else {
-                  if (repeat.indexOf(dt.weekday) != -1) {
+                DateTime(dtStart.year, dtStart.month, dtStart.day + j);
+                if(oldDay.day!=dt.day){
+                  oldDay = dt;
+                  if (repeat.first == 0) {
                     _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                  } else {
+                    if (repeat.indexOf(dt.weekday) != -1) {
+                      _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                    }
                   }
                 }
               }
             } else {
               for (int j = 0; j <= (28 - dtStart.day); j++) {
                 DateTime dt =
-                    DateTime(dtStart.year, dtStart.month, dtStart.day + j);
-                if (repeat.first == 0) {
-                  _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-                } else {
-                  if (repeat.indexOf(dt.weekday) != -1) {
+                DateTime(dtStart.year, dtStart.month, dtStart.day + j);
+                if(oldDay.day!=dt.day){
+                  oldDay = dt;
+                  if (repeat.first == 0) {
                     _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                  } else {
+                    if (repeat.indexOf(dt.weekday) != -1) {
+                      _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                    }
                   }
                 }
               }
@@ -216,11 +239,14 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
           } else if (i == dtEnd.month - dtStart.month) {
             for (int j = 0; j <= (dtEnd.day - 1); j++) {
               DateTime dt = DateTime(dtEnd.year, dtEnd.month, j + 1);
-              if (repeat.first == 0) {
-                _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-              } else {
-                if (repeat.indexOf(dt.weekday) != -1) {
+              if(oldDay.day!=dt.day){
+                oldDay = dt;
+                if (repeat.first == 0) {
                   _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                } else {
+                  if (repeat.indexOf(dt.weekday) != -1) {
+                    _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                  }
                 }
               }
             }
@@ -234,12 +260,15 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
                 dtStart.month + i == 12) {
               for (int j = 0; j <= 31; j++) {
                 DateTime dt =
-                    DateTime(dtStart.year, dtStart.month + i, j+1);
-                if (repeat.first == 0) {
-                  _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-                } else {
-                  if (repeat.indexOf(dt.weekday) != -1) {
+                DateTime(dtStart.year, dtStart.month + i, j+1);
+                if(oldDay.day!=dt.day){
+                  oldDay = dt;
+                  if (repeat.first == 0) {
                     _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                  } else {
+                    if (repeat.indexOf(dt.weekday) != -1) {
+                      _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                    }
                   }
                 }
               }
@@ -250,11 +279,14 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
               for (int j = 0; j <= 30; j++) {
                 DateTime dt =
                 DateTime(dtStart.year, dtStart.month + i, j+1);
-                if (repeat.first == 0) {
-                  _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-                } else {
-                  if (repeat.indexOf(dt.weekday) != -1) {
+                if(oldDay.day!=dt.day){
+                  oldDay = dt;
+                  if (repeat.first == 0) {
                     _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                  } else {
+                    if (repeat.indexOf(dt.weekday) != -1) {
+                      _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                    }
                   }
                 }
               }
@@ -262,11 +294,14 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
               for (int j = 0; j <= 28; j++) {
                 DateTime dt =
                 DateTime(dtStart.year, dtStart.month + i, j+1);
-                if (repeat.first == 0) {
-                  _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
-                } else {
-                  if (repeat.indexOf(dt.weekday) != -1) {
+                if(oldDay.day!=dt.day){
+                  oldDay = dt;
+                  if (repeat.first == 0) {
                     _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                  } else {
+                    if (repeat.indexOf(dt.weekday) != -1) {
+                      _markedDateMap.add(dt, itemWorkMarkedBuild(dt));
+                    }
                   }
                 }
               }
@@ -274,7 +309,7 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
           }
         }
       }
-    });
+    }
     for (int i = 0; i < events.length; i++) {
       DateTime dt = DateTime.parse(events[i].date);
       _markedDateMap.add(
@@ -543,7 +578,7 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
                                 customGridViewPhysics:
                                     NeverScrollableScrollPhysics(),
                                 markedDatesMap: _markedDateMap,
-                                markedDateIconMaxShown: 1,
+                                markedDateIconMaxShown: 2,
                                 markedDateCustomTextStyle: kText14Blue,
                                 markedDateMoreCustomTextStyle: kText14Blue,
                                 headerMargin: EdgeInsets.zero,
@@ -597,7 +632,7 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
                                                 padding:
                                                     EdgeInsets.only(top: 10),
                                                 child: Text(
-                                                  "Không có công viện nào!",
+                                                  "Không có công việc nào!",
                                                   style: kSubText14Black,
                                                 ),
                                               ),

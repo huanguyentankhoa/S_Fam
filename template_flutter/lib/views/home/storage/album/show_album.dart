@@ -1,13 +1,18 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_absolute_path/flutter_absolute_path.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:multi_image_picker/multi_image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:s_fam/common/config.dart';
 import 'package:s_fam/common/constants/colors_config.dart';
+import 'package:s_fam/common/constants/general.dart';
 import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
 import 'package:s_fam/models/album.dart';
@@ -28,6 +33,8 @@ class _ShowAlbumState extends State<ShowAlbum> {
   List<Widget> listImage = [];
   Album? _album;
   File? file;
+
+  bool _permissionReady = false;
 
   Future<void> pickImagesFromGallery(List<Asset> resultList) async {
     resultList.forEach((img) async {
@@ -71,6 +78,59 @@ class _ShowAlbumState extends State<ShowAlbum> {
       listImage = _list;
     });
   }
+  //
+  // Future<bool> _checkPermission() async {
+  //   if (Platform.isAndroid) {
+  //     final status = await Permission.storage.status;
+  //     if (status != PermissionStatus.granted) {
+  //       final result = await Permission.storage.request();
+  //       if (result == PermissionStatus.granted) {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     } else {
+  //       return true;
+  //     }
+  //   } else if (Platform.isIOS) {
+  //     final status = await Permission.photos.status;
+  //     if (status != PermissionStatus.granted) {
+  //       final result = await Permission.photos.request();
+  //       if (result == PermissionStatus.granted) {
+  //         return true;
+  //       } else {
+  //         return false;
+  //       }
+  //     } else {
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
+  //
+  // Future<String> getStorageDirectory() async {
+  //   if (Platform.isAndroid) {
+  //     return (await getExternalStorageDirectory())!.path;
+  //   } else {
+  //     return (await getApplicationDocumentsDirectory()).path;
+  //   }
+  // }
+  //
+  // _downloadImage(var url) async {
+  //   String? pathImage = await ExtStorage.getExternalStoragePublicDirectory(
+  //       ExtStorage.DIRECTORY_PICTURES);
+  //   try {
+  //     if (url != null) {
+  //       await FlutterDownloader.enqueue(
+  //           url: url,
+  //           savedDir: pathImage != null && pathImage != ""
+  //               ? pathImage
+  //               : await getStorageDirectory());
+  //     }
+  //   } catch (error) {
+  //     printLog(error);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -206,58 +266,57 @@ class _ShowAlbumState extends State<ShowAlbum> {
                     child: Tools().getImage(link),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    height: 30,
-                    color: Colors.transparent,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.delete_forever,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                Text(
-                                  "Xóa",
-                                  style: kText14White,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.download_rounded,
-                                  color: Colors.white,
-                                  size: 20,
-                                ),
-                                Text(
-                                  "Tải về",
-                                  style: kText14White,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
+                // Align(
+                //   alignment: Alignment.bottomCenter,
+                //   child: Container(
+                //     height: 30,
+                //     color: Colors.transparent,
+                //     child: Row(
+                //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //       children: [
+                //         InkWell(
+                //           onTap: () async {
+                //             await _checkPermission().then((hasGranted) {
+                //               setState(() {
+                //                 _permissionReady = hasGranted;
+                //               });
+                //             });
+                //             if (_permissionReady) {
+                //               await _downloadImage(link);
+                //               const snackBar = SnackBar(
+                //                 content: Text("Đã tải ảnh xuống"),
+                //                 duration: Duration(seconds: 3),
+                //               );
+                //               ScaffoldMessenger.of(context)
+                //                   .showSnackBar(snackBar);
+                //             } else {
+                //               await _checkPermission().then((hasGranted) {
+                //                 setState(() {
+                //                   _permissionReady = hasGranted;
+                //                 });
+                //               });
+                //             }
+                //           },
+                //           child: Container(
+                //             child: Row(
+                //               children: [
+                //                 Icon(
+                //                   Icons.download_rounded,
+                //                   color: Colors.white,
+                //                   size: 20,
+                //                 ),
+                //                 Text(
+                //                   "Tải về",
+                //                   style: kText14White,
+                //                 ),
+                //               ],
+                //             ),
+                //           ),
+                //         ),
+                //       ],
+                //     ),
+                //   ),
+                // )
               ],
             ),
           ),

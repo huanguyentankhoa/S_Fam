@@ -11,18 +11,22 @@ class TextInput extends StatefulWidget {
   final TextInputType? keyboardType;
   final bool? enable;
   final int? maxLength;
-  TextInput({
-    Key? key,
-    required this.height,
-    this.validator,
-    required this.controller,
-    this.obscureText = false,
-    this.decoration,
-    required this.labelText,
-    this.keyboardType,
-    this.enable,
-    this.maxLength
-  }) : super(key: key);
+  final int? maxLine;
+
+  TextInput(
+      {Key? key,
+      required this.height,
+      this.validator,
+      required this.controller,
+      this.obscureText = false,
+      this.decoration,
+      required this.labelText,
+      this.keyboardType,
+      this.enable,
+      this.maxLength,
+        this.maxLine
+      })
+      : super(key: key);
 
   @override
   _TextInputState createState() => _TextInputState();
@@ -48,10 +52,8 @@ class _TextInputState extends State<TextInput> {
     return Stack(
       children: [
         InkWell(
-          onTap: (){
-           setState(() {
-
-           });
+          onTap: () {
+            _focusNode.requestFocus();
           },
           child: Container(
             height: widget.height,
@@ -76,9 +78,10 @@ class _TextInputState extends State<TextInput> {
           focusNode: _focusNode,
           obscureText: widget.obscureText!,
           textAlignVertical: TextAlignVertical.center,
-          keyboardType: widget.keyboardType??null,
-          maxLength: widget.maxLength??null,
-          readOnly: widget.enable??false,
+          keyboardType: widget.keyboardType ?? null,
+          maxLength: widget.maxLength ?? null,
+          readOnly: widget.enable ?? false,
+          maxLines: widget.maxLine??1,
           validator: (value) {
             if (widget.validator!(value) != null) {
               setState(() {

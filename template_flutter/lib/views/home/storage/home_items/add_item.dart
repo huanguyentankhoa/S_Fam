@@ -136,10 +136,16 @@ class _AddItemState extends State<AddItem> {
                   child: TextInput(
                     height: 223,
                     labelText: "Mô tả",
+                    maxLine: 20,
+                    keyboardType: TextInputType.multiline,
                     validator: (value) {
                       return value!.isEmpty ? "Không được bỏ trống" : null;
                     },
                     controller: note,
+                    decoration: InputDecoration(
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(top: 20,left: 10,right: 10)
+                    ),
                   ),
                 ),
                 SizedBox(
