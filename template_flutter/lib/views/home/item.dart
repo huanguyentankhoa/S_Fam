@@ -8,7 +8,8 @@ class Item extends StatelessWidget {
   final String? name;
   final String? sub;
 
-  const Item({Key? key, this.name, this.date,this.time, this.sub}) : super(key: key);
+  const Item({Key? key, this.name, this.date, this.time, this.sub})
+      : super(key: key);
 
   // _isToday(date) {
   //   var today = Tools().getDate(DateTime.now().toString());
@@ -25,9 +26,7 @@ class Item extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            date == null&&time==null
-                ? ""
-                : "${Tools().getTime(date!)} - ${Tools().getDate("$date")}",
+            "${date != null ? Tools().getTime(date!) : ""} - ${date != null ? Tools().getDate("$date") : ""}",
             //dateTime.toString(),
             //style: _isToday(dateTime) ? kText14Red : kSubText14Black,
             style: kSubText14Black,

@@ -76,7 +76,6 @@ class _PersonScreenState extends State<PersonScreen> {
     var member =
         Provider.of<UserProvider>(context, listen: false).userCurrentLogin;
     loadInit();
-    print(member.dob);
     setState(() {
       _name.text = member.name!;
       _mail.text = member.email!;

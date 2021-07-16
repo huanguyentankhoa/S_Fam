@@ -141,13 +141,12 @@ class _CalendarScreenState extends State<CalendarScreen> with AfterLayoutMixin {
       date: DateTime(dt.year, dt.month, dt.day),
       dot: Container(
         color: Colors.white,
-        width: 40,
         padding: EdgeInsets.only(top: 1),
-        child: Center(
-          child: Text(
-            dt.day.toString(),
-            style: kText14Blue,
-          ),
+        alignment: Alignment.center,
+        width: 41,
+        child: Text(
+          dt.day.toString(),
+          style: kText14Blue,
         ),
       ),
     );

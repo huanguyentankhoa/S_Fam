@@ -27,8 +27,14 @@ class UserProvider with ChangeNotifier {
 
   String token = "";
   String codeFamily = "";
+  bool _haveNotification = false;
 
-  //Group? groupOfUser;
+  bool get haveNotification => _haveNotification;
+
+  set haveNotification(bool value) {
+    _haveNotification = value;
+    notifyListeners();
+  } //Group? groupOfUser;
   List<Member> listMemberOfGroup = [];
   List<EventModel> listEvent = [];
   List<Work> listWork = [];
@@ -88,7 +94,6 @@ class UserProvider with ChangeNotifier {
       await _services.getMemberByEmail(_email, success: (_member) {
         _userCurrentLogin = _member;
         notifyListeners();
-        print("allo");
       }, fail: (statusCode) {
         loggedIn = false;
         saveLoginState(loggedIn);
@@ -190,7 +195,6 @@ class UserProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       loading = false;
-      print('[ERROR] $e');
       loggedIn = false;
       fail!(e.toString());
       notifyListeners();
@@ -354,6 +358,12 @@ class UserProvider with ChangeNotifier {
     return _w;
   }
 
+  Future<List<Map<String, dynamic>>?> getListNotification() async {
+    List<Map<String, dynamic>>? _w =
+    (await _services.getListNotification(email: userCurrentLogin.email))!;
+    return _w;
+  }
+
   Future<void> createWork(
       {required Map<String, dynamic> data,
       required email,
@@ -402,18 +412,17 @@ class UserProvider with ChangeNotifier {
     return _works;
   }
 
-  Future<List<StorageItem>?> getListStorageItem({Function(List<StorageItem>)? success}) async {
+  Future<List<StorageItem>?> getListStorageItem(
+      {Function(List<StorageItem>)? success}) async {
     listStorageItem =
-    (await _services.getListStorageItem(email: userCurrentLogin.email))!;
-   if(listStorageItem.isNotEmpty){
-     success!(listStorageItem);
-     return listStorageItem;
-   }else{
-     success!([]);
-     return [];
-   }
-
-
+        (await _services.getListStorageItem(email: userCurrentLogin.email))!;
+    if (listStorageItem.isNotEmpty) {
+      success!(listStorageItem);
+      return listStorageItem;
+    } else {
+      success!([]);
+      return [];
+    }
   }
 
   Future<void> getListStorageAccount({Function? success}) async {

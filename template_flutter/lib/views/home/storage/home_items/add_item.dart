@@ -63,7 +63,6 @@ class _AddItemState extends State<AddItem> {
               data: data,
               email: user.userCurrentLogin.email,
               success: (item) {
-                print(item);
                 setState(() {
                   stateOnlyText = ButtonStatus.success;
                 });

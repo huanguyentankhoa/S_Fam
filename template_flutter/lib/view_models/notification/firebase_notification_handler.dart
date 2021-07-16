@@ -4,8 +4,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:provider/provider.dart';
 import 'package:s_fam/services/services_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../user_provider.dart';
 import 'notification_handler.dart';
 
 class FirebaseNotification {
@@ -30,7 +32,7 @@ class FirebaseNotification {
       provisional: true,
       sound: true,
     );
-    print("Setting ${settings.authorizationStatus}");
+
     //get token
     //We will use token to receive notification
     _messaging.getToken().then((token) {
@@ -42,10 +44,11 @@ class FirebaseNotification {
     //we will send to topic for group notification
     _messaging
         .subscribeToTopic("template_notification")
-        .whenComplete(() => print("Subscribe OK"));
+        .whenComplete(() {});
 
     //Handle message
     FirebaseMessaging.onMessage.listen((remoteMessage) {
+      Provider.of<UserProvider>(context,listen: false).haveNotification = true;
       if (Platform.isAndroid) {
         if (remoteMessage.data.isEmpty) {
           showNotification(
@@ -60,7 +63,7 @@ class FirebaseNotification {
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((remoteMessage) {
-      print("Receive open app: $remoteMessage");
+
       if (Platform.isIOS)
         showDialog(
             context: myContext,
@@ -89,7 +92,6 @@ class FirebaseNotification {
 
     var ios = IOSNotificationDetails();
     var platForm = NotificationDetails(android: androidChannel, iOS: ios);
-    print(title);
     await NotificationHandler.flutterLocalNotificationPlugin
         .show(0, title, body, platForm, payload: "My Payload");
   }

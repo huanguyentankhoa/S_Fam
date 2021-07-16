@@ -1,7 +1,7 @@
 
 /// Logging config
 const kLOG_TAG = "[APP]";
-const kLOG_ENABLE = true;
+const kLOG_ENABLE = false;
 const ApiPageSize = 20;
 
 /// enable network proxy

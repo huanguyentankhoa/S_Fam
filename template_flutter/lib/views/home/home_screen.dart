@@ -81,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: ClipOval(
                       child: member.avatarUrl != null && member.avatarUrl != ""
                           ? Tools().getImage("${serverConfig["url"]}" +
-                          "api/v1/image/download?path=${member.email}&name=${member.avatarUrl}")
+                              "api/v1/image/download?path=${member.email}&name=${member.avatarUrl}")
                           : Image.asset(
                               "assets/icons/logo.png",
                               fit: BoxFit.contain,
@@ -206,52 +206,54 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         elevation: 0,
         actions: [
-          // Container(
-          //   height: 50,
-          //   width: 50,
-          //   margin: EdgeInsets.only(right: 15),
-          //   child: Stack(
-          //     alignment: AlignmentDirectional.topEnd,
-          //     children: [
-          //       GestureDetector(
-          //         onTap: () {
-          //           Navigator.push(
-          //             context,
-          //             MaterialPageRoute(
-          //               builder: (context) => NotificationScreen(),
-          //             ),
-          //           );
-          //         },
-          //         child: Container(
-          //           height: 40,
-          //           width: 40,
-          //           alignment: Alignment.center,
-          //           margin: EdgeInsets.only(right: 5, top: 5),
-          //           decoration: BoxDecoration(
-          //             borderRadius: BorderRadius.circular(8),
-          //             border: Border.all(color: Colors.black),
-          //           ),
-          //           child: Icon(
-          //             Icons.notifications_none,
-          //             size: 20,
-          //             color: Colors.black,
-          //           ),
-          //         ),
-          //       ),
-          //       Container(
-          //         height: 15,
-          //         width: 15,
-          //         alignment: Alignment.center,
-          //         decoration:
-          //             BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-          //         child: Text(
-          //           "0",
-          //           style: kText10White,
-          //         ),
-          //       )
-          //     ],
-          //   ),
-          // )
+          Container(
+            height: 50,
+            width: 50,
+            margin: EdgeInsets.only(right: 15),
+            child: Stack(
+              alignment: AlignmentDirectional.topEnd,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    user.haveNotification = false;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NotificationScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    height: 40,
+                    width: 40,
+                    alignment: Alignment.center,
+                    margin: EdgeInsets.only(right: 5, top: 5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.black),
+                    ),
+                    child: Icon(
+                      Icons.notifications_none,
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                if (user.haveNotification)
+                  Container(
+                    height: 15,
+                    width: 15,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                        color: Colors.red, shape: BoxShape.circle),
+                    child: Text(
+                      "!",
+                      style: kText10White,
+                    ),
+                  )
+              ],
+            ),
+          )
         ],
       ),
       drawer: Menu(),
@@ -295,7 +297,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Container(
-                height: 260,
+                height: 262,
                 child: Column(
                   children: [
                     Row(
@@ -311,7 +313,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ListWorkScreen(works: user.listWork,),
+                                  builder: (context) => ListWorkScreen(
+                                    works: user.listWork,
+                                  ),
                                 ),
                               );
                             },
@@ -346,17 +350,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: kSubText16BlackBold,
                               ),
                             );
-                          else if (_works != null)
-                            if(_works!.length>0)
+                          else if (_works != null) if (_works!.length > 0)
                             return showListWork(_works!);
-                            else{
-                              return Container(
-                                child: Text(
-                                  "Không có công việc nào!",
-                                  style: kSubText16BlackBold,
-                                ),
-                              );
-                            }
+                          else {
+                            return Container(
+                              child: Text(
+                                "Không có công việc nào!",
+                                style: kSubText16BlackBold,
+                              ),
+                            );
+                          }
                           else
                             return CircularProgressIndicator();
                         }),
@@ -364,7 +367,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               Container(
-                height: 260,
+                height: 262,
                 child: Column(
                   children: [
                     Row(
@@ -380,7 +383,9 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => ListEventScreen(events: user.listEvent,),
+                                  builder: (context) => ListEventScreen(
+                                    events: user.listEvent,
+                                  ),
                                 ),
                               );
                             },
@@ -415,17 +420,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 style: kSubText16BlackBold,
                               ),
                             );
-                          else if (_events != null)
-                            if(_events!.length>0)
-                              return showListEvent(_events!);
-                            else{
-                              return Container(
-                                child: Text(
-                                  "Không có sự kiện nào!",
-                                  style: kSubText16BlackBold,
-                                ),
-                              );
-                            }
+                          else if (_events != null) if (_events!.length > 0)
+                            return showListEvent(_events!);
+                          else {
+                            return Container(
+                              child: Text(
+                                "Không có sự kiện nào!",
+                                style: kSubText16BlackBold,
+                              ),
+                            );
+                          }
                           else
                             return CircularProgressIndicator();
                         }),

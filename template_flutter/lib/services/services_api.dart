@@ -362,6 +362,24 @@ class APIServices {
     }
   }
 
+  Future<List<Map<String, dynamic>>?> getListNotification(
+      {required email}) async {
+    try {
+      Dio dio = new Dio();
+      List<Map<String, dynamic>>? notifications = [];
+      Response response = await dio.get("$url" + "api/v1/notification/$email");
+      if (response.statusCode == 200) {
+        response.data.forEach((item) {
+          notifications.add(item);
+        });
+      }
+      return notifications;
+    } catch (e) {
+      //print(e);
+      throw Exception("Có lỗi xảy ra");
+    }
+  }
+
   Future<void> createWork(
       {required email,
       required Map<String, dynamic> data,
@@ -456,11 +474,9 @@ class APIServices {
           _listItems.add(StorageItem.formJson(item));
         });
         return _listItems;
-      }else{
+      } else {
         throw Exception("Không có dữ liệu");
-
       }
-
     } catch (e) {
       print(e);
       throw Exception("Không có dữ liệu");
@@ -631,16 +647,14 @@ class APIServices {
           contentType: MediaType('image', imagePath.split('.').last),
         ),
       ));
-      Response response = await dio.post(
-          "$url" + "api/v1/image/item/$idItem/upload",
-          data: data);
+      Response response = await dio
+          .post("$url" + "api/v1/image/item/$idItem/upload", data: data);
       if (response.statusCode == 200) {
         success!();
       } else
         fail!();
     } on DioError catch (e) {
-      print(e);
-      print(e.response!.data);
+
     }
   }
 
@@ -669,16 +683,14 @@ class APIServices {
           contentType: MediaType('image', imagePath.split('.').last),
         ),
       ));
-      Response response = await dio.post(
-          "$url" + "api/v1/image/$email/avt/upload",
-          data: data);
+      Response response =
+          await dio.post("$url" + "api/v1/image/$email/avt/upload", data: data);
       if (response.statusCode == 200) {
         success!();
       } else
         fail!();
     } on DioError catch (e) {
-      print(e);
-      print(e.response!.data);
+
       fail!();
     }
   }
@@ -693,13 +705,16 @@ class APIServices {
   }
 
   Future<void> sendLocation(
-      {required email, required latitude, required longitude,required isEnablePosition}) async {
+      {required email,
+      required latitude,
+      required longitude,
+      required isEnablePosition}) async {
     try {
       Dio dio = new Dio();
       Map<String, dynamic> data = {
         "latitude": latitude,
         "longitude": longitude,
-        "isEnablePosition":isEnablePosition
+        "isEnablePosition": isEnablePosition
       };
       await dio.put("$url" + "api/v1/location/$email/update", data: data);
     } on DioError catch (e) {
