@@ -38,16 +38,16 @@ class _HomeItemsState extends State<HomeItems> {
     //     });
     // });
   }
-
-  Future<List<StorageItem>> getData() async {
-    List<StorageItem> listItems = [];
-    listItems = (await Provider.of<UserProvider>(context, listen: false)
-        .getListStorageItem(success: (value) {}))!;
-    setState(() {
-      allItems = listItems;
-    });
-    return listItems;
-  }
+  //
+  // Future<List<StorageItem>> getData() async {
+  //   List<StorageItem> listItems = [];
+  //   listItems = (await Provider.of<UserProvider>(context, listen: false)
+  //       .getListStorageItem(success: (value) {}))!;
+  //   setState(() {
+  //     allItems = listItems;
+  //   });
+  //   return listItems;
+  // }
 
   searchItem(String query) {
     setState(() {
@@ -153,7 +153,9 @@ class _HomeItemsState extends State<HomeItems> {
                           ),
                         );
                       else
-                        return Center(child: CircularProgressIndicator());
+                        return Container(
+                          alignment: Alignment.topCenter,
+                            child: CircularProgressIndicator());
                     }),
               ),
             // if (!isSearch && listItems.isEmpty)

@@ -228,7 +228,7 @@ class _StorageScreenState extends State<StorageScreen>
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           child: Text(
-                            "Vui lòng nhập mã pin để truy cập",
+                            "Vui lòng nhập tên album của bạn:",
                             style: kText18BlueBold,
                           ),
                         ),

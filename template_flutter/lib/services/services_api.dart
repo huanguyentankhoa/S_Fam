@@ -455,9 +455,15 @@ class APIServices {
         response.data.forEach((item) {
           _listItems.add(StorageItem.formJson(item));
         });
+        return _listItems;
+      }else{
+        throw Exception("Không có dữ liệu");
+
       }
-      return _listItems;
+
     } catch (e) {
+      print(e);
+      throw Exception("Không có dữ liệu");
       // print(e);
     }
   }

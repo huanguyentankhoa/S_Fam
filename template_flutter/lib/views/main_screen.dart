@@ -47,7 +47,6 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       firebaseNotification.setupFirebase(
@@ -57,21 +56,10 @@ class _MainScreenState extends State<MainScreen> {
               .email!);
     });
 
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (Provider.of<UserProvider>(context, listen: false).loggedIn) {
-        Provider.of<UserProvider>(context, listen: false).getListStorageItem();
-        Provider.of<UserProvider>(context, listen: false)
-            .getListStorageAccount();
-        Provider.of<UserProvider>(context, listen: false).getListAlbums();
-      } else {
-        _timer.cancel();
-      }
-    });
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
     _timer.cancel();
   }

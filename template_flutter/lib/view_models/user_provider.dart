@@ -402,14 +402,18 @@ class UserProvider with ChangeNotifier {
     return _works;
   }
 
-  Future<List<StorageItem>?> getListStorageItem({Function? success}) async {
-    try {
-      listStorageItem =
-          (await _services.getListStorageItem(email: userCurrentLogin.email))!;
-      success!(listStorageItem);
-      notifyListeners();
-      return listStorageItem;
-    } catch (e) {}
+  Future<List<StorageItem>?> getListStorageItem({Function(List<StorageItem>)? success}) async {
+    listStorageItem =
+    (await _services.getListStorageItem(email: userCurrentLogin.email))!;
+   if(listStorageItem.isNotEmpty){
+     success!(listStorageItem);
+     return listStorageItem;
+   }else{
+     success!([]);
+     return [];
+   }
+
+
   }
 
   Future<void> getListStorageAccount({Function? success}) async {
