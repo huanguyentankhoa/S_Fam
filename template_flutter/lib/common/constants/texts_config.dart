@@ -65,6 +65,11 @@ var kText16BlackBold = TextStyle(
     fontWeight: FontWeight.bold,
     color: textMain,
     fontFamily: fontFamily);
+var kText16RedBold = TextStyle(
+    fontSize:16,
+    fontWeight: FontWeight.bold,
+    color: Colors.red,
+    fontFamily: fontFamily);
 var kText16Black = TextStyle(
     fontSize:16,
     fontWeight: FontWeight.normal,

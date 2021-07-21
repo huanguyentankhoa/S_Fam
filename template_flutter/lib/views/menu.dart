@@ -7,7 +7,6 @@ import 'package:s_fam/common/constants/texts_config.dart';
 import 'package:s_fam/common/tools.dart';
 import 'package:s_fam/view_models/app_provider.dart';
 import 'package:s_fam/view_models/user_provider.dart';
-import 'package:s_fam/views/map/follow_position.dart';
 import 'package:s_fam/views/person/person_screen.dart';
 import 'package:s_fam/views/welcome_screen.dart';
 

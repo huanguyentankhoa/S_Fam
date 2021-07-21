@@ -653,9 +653,7 @@ class APIServices {
         success!();
       } else
         fail!();
-    } on DioError catch (e) {
-
-    }
+    } on DioError catch (e) {}
   }
 
   Future<void> uploadAvtUser({
@@ -690,7 +688,6 @@ class APIServices {
       } else
         fail!();
     } on DioError catch (e) {
-
       fail!();
     }
   }
@@ -773,12 +770,11 @@ class APIServices {
       }
       return false;
     } on DioError catch (e) {
-      //print(e);
       return false;
     }
   }
 
-  Future<void> sendNotification(token, {title, body}) async {
+  Future<void> sendNotification(token, {required title, required body}) async {
     try {
       Dio dio = new Dio();
       dio.options.headers = {
@@ -790,10 +786,8 @@ class APIServices {
         "https://fcm.googleapis.com/fcm/send",
         data: {
           "to": token,
-          "data": {
-            "title": title == "" ? "Thông báo" : title,
-            "body": body == "" ? "Bạn có thông báo mới" : body
-          }
+          "notification": {"body": body, "title": title},
+          "data": {"title": title, "body": body}
         },
       );
     } catch (e) {

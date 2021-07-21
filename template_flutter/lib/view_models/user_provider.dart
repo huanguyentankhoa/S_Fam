@@ -17,7 +17,7 @@ import 'dart:convert' as convert;
 
 class UserProvider with ChangeNotifier {
   late Member _userCurrentLogin;
-
+   Map<String,dynamic>? positionMemberWarning;
   Member get userCurrentLogin => _userCurrentLogin;
 
   set userCurrentLogin(Member value) {
@@ -28,14 +28,21 @@ class UserProvider with ChangeNotifier {
   String token = "";
   String codeFamily = "";
   bool _haveNotification = false;
+  bool _haveWarning = false;
+
+  bool get haveWarning => _haveWarning;
+
+  set haveWarning(bool value) {
+    _haveWarning = value;
+    notifyListeners();
+  }
 
   bool get haveNotification => _haveNotification;
 
   set haveNotification(bool value) {
     _haveNotification = value;
     notifyListeners();
-  } //Group? groupOfUser;
-  List<Member> listMemberOfGroup = [];
+  }
   List<EventModel> listEvent = [];
   List<Work> listWork = [];
   List<StorageAccount> listStorageAccount = [];
@@ -574,7 +581,6 @@ class UserProvider with ChangeNotifier {
     try {
       await _services.sendWarning(email: _userCurrentLogin.email);
     } catch (e) {
-      //print(e);
     }
   }
 
@@ -583,5 +589,18 @@ class UserProvider with ChangeNotifier {
         email: _userCurrentLogin.email, pinCode: pinCode);
     if (result) getUserInfo(_userCurrentLogin.email);
     return result;
+  }
+  Future<Map<String, dynamic>?> getPositionMemberWarning(String bodyNotification)async{
+    var name = bodyNotification.split("Cần giúp")[0];
+    var _g = await getDataMyGroup(email: userCurrentLogin.email);
+
+    _g!.listMembers.forEach((element) async {
+      if(element.name==name.trim()){
+        positionMemberWarning = await getLocation(email: element.email);
+        notifyListeners();
+      }
+    });
+    print(positionMemberWarning);
+    return positionMemberWarning;
   }
 }

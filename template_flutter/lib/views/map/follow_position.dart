@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -35,6 +37,7 @@ class _FollowPositionState extends State<FollowPosition> {
     zoom: 14.4746,
   );
   bool _enablePosition = false;
+
   List<Member> membersOfGroup = [];
 
   _getCurrentPosition() async {
@@ -98,23 +101,25 @@ class _FollowPositionState extends State<FollowPosition> {
           await Provider.of<UserProvider>(context, listen: false)
               .getLocation(email: m.email);
       if (location != null) {
-        double lat = double.parse(location["latitude"].toString());
-        double long = double.parse(location["longitude"].toString());
-
-        if (location["isEnablePosition"] != null &&
-            location["isEnablePosition"] == true) {
-          listMarkers.add(
-            Marker(
-                markerId: MarkerId(m.id.toString()),
-                position: LatLng(lat, long),
-                anchor: Offset(0.2, 0.2),
-                // icon: await BitmapDescriptor.fromAssetImage(
-                //     createLocalImageConfiguration(context,size: Size(40, 40)),
-                //     "assets/icons/location.png"),
-                icon: BitmapDescriptor.defaultMarker,
-                infoWindow: InfoWindow(title: m.name)),
-          );
+        if (location["latitude"] != null && location["longitude"] != null) {
+          double lat = double.parse(location["latitude"].toString());
+          double long = double.parse(location["longitude"].toString());
+          if (location["isEnablePosition"] != null &&
+              location["isEnablePosition"] == true) {
+            listMarkers.add(
+              Marker(
+                  markerId: MarkerId(m.id.toString()),
+                  position: LatLng(lat, long),
+                  anchor: Offset(0.2, 0.2),
+                  icon: BitmapDescriptor.defaultMarker,
+                  infoWindow: InfoWindow(title: m.name)),
+            );
+          }
         }
+      }
+
+      if (Provider.of<UserProvider>(context, listen: false).haveWarning) {
+        //setPolyline();
       }
       if (mounted) setState(() {});
     });
@@ -125,12 +130,13 @@ class _FollowPositionState extends State<FollowPosition> {
     // TODO: implement initState
     super.initState();
 
+   // polylinePoints = PolylinePoints();
+
     loadInit();
-    _timer = Timer.periodic(Duration(seconds: 20), (timer) {
+    _timer = Timer.periodic(Duration(seconds: 30), (timer) {
       if (mounted) if (_enablePosition) {
         _getCurrentPosition();
       }
-      loadInit();
     });
   }
 
@@ -204,11 +210,19 @@ class _FollowPositionState extends State<FollowPosition> {
                   Container(
                     margin: EdgeInsets.only(right: 10, left: 10),
                     child: AnimationBell(
-                      onTap: (result) {
+                      onTap: (result) async {
                         if (result) {
                           user.sendNotification(
                               title: "Yêu cầu trợ giúp",
                               body: "Bạn đang phát tín hiệu trợ giúp");
+                          var pos = await Geolocator.getCurrentPosition(
+                              desiredAccuracy: LocationAccuracy.high);
+                           _getCurrentPosition();
+                          user.sendLocation(
+                              latitude: pos.latitude,
+                              longitude: pos.longitude,
+                              isEnablePosition: false);
+
                           user.sendWarning();
                         } else {
                           NotificationHandler.flutterLocalNotificationPlugin
@@ -218,6 +232,52 @@ class _FollowPositionState extends State<FollowPosition> {
                     ),
                   )
                 ],
+              ),
+            ),
+          ),
+          if(user.haveWarning)
+          Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            color: Colors.black45,
+            child: Center(
+              child:   InkWell(
+                onTap: () {
+                  setState(() {
+                    user.haveWarning = false;
+                  });
+                  FlutterRingtonePlayer.stop();
+                  NotificationHandler.flutterLocalNotificationPlugin
+                      .cancelAll();
+                },
+                child: Container(
+                  height: 100,
+                  child: Column(
+                    children: [
+                      Text(
+                        "Bạn đang có thông báo khẩn cấp",
+                        style: kText16WhiteBold,
+                      ),
+                      SizedBox(
+                        height: 15,
+                      ),
+                      Container(
+                        height: 48,
+                        width: MediaQuery.of(context).size.width - 100,
+                        margin: EdgeInsets.only(right: 10, left: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          "Đã nhận thông báo",
+                          style: kText16WhiteBold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           )

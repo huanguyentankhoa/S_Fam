@@ -248,6 +248,18 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "flutter_polyline_points",
+      "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_polyline_points-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
+      "name": "flutter_ringtone_player",
+      "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_ringtone_player-3.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "flutter_rounded_date_picker",
       "rootUri": "file:///C:/Users/Dell/AppData/Roaming/Pub/Cache/hosted/pub.dartlang.org/flutter_rounded_date_picker-2.0.2",
       "packageUri": "lib/",
@@ -698,7 +710,7 @@
       "languageVersion": "2.12"
     }
   ],
-  "generated": "2021-07-16T14:46:02.662540Z",
+  "generated": "2021-07-20T02:33:56.782468Z",
   "generator": "pub",
   "generatorVersion": "2.12.0"
 }
