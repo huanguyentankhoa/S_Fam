@@ -21,6 +21,7 @@ class NotificationHandler {
         InitializationSettings(android: initAndroid, iOS: initIOS);
     flutterLocalNotificationPlugin.initialize(initSetting,
         onSelectNotification: (title) {
+      print("run here $title");
       if (title == "Yêu cầu trợ giúp") {
         Provider.of<AppProvider>(context, listen: false).tabMainSelected = 3;
       }

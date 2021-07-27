@@ -48,6 +48,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   void initState() {
     super.initState();
+    int a = Provider.of<AppProvider>(context,listen: false).tabMainSelected;
+    print("run here $a");
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
       firebaseNotification.setupFirebase(
           context,
